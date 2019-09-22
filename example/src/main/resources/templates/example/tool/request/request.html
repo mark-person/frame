@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+<link th:replace="base/base-fragment::format-json"/>
+
+</head>
+<body>
+
+
+<div class="v-title">
+	<label>post</label>
+</div>
+
+<div id="queryForm" v-coark>
+	<div>
+		<input type="text" class="v-text" v-model="uri" style="width:34rem">
+		<button @click="post" class="v-button">post</button>
+	</div>
+	<div>
+		<textarea class="v-text" v-model="param" style="width:40rem;height:4rem;"></textarea>
+	</div>
+	<div>
+		<textarea class="v-text" v-model="result" style="width:40rem;height:10rem;"></textarea>
+	</div>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+base.initLoading();
+var queryForm = new Vue({
+    el:'#queryForm',
+    data:{uri:'auth/res/getResUri', param:'{}', result:''},
+    methods:{
+    	post:function() {
+    		var paramJson = JSON.parse(this.param);
+    		axios.post(this.uri, paramJson).then(function(res) {
+    			queryForm.result = formatJson(JSON.stringify(res));
+    		})
+    	}
+    }
+})
+
+
+
+</script>
+</body>
+</html>
+
+

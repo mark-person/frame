@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+<link th:replace="base/base-fragment::markdown"/>
+
+<script type="text/javascript" th:src="@{/base/dict/list?code=core.faq_category,core.faq_time_type}"></script>
+</head>
+<body>
+
+<div class="v-title"><label class="v-title-label">FAQ</label></div>
+
+<table class="v-table" id="faq" v-cloak>
+<tr>
+	<th style="width:4rem">问题</th><td><input class="v-text" type="text" style="width:36rem;" maxlength="128" v-model="faqTitle"></td>
+</tr>
+<tr>
+	<th>属性</th>
+	<td style="display:flex;align-items:center;">
+		<select class="v-select" v-model="faqCategory">
+			<option v-for="(v, k) in base.listDict('faq_category')" :value="k">{{v}}</option>
+		</select>
+		
+		<select class="v-select" v-model="faqTimeType">
+			<option v-for="(v, k) in base.listDict('faq_time_type')" :value="k">{{v}}</option>
+		</select>
+	</td>
+</tr>
+<tr>
+	<th>描述</th>
+	<td style="background-color: white;border-top:1px solid #ddd;border-bottom:1px solid #ddd;">
+		<div style="float:left;margin-bottom:-0.4rem">
+			<div><textarea class="v-text" id="faqDescr" style="width:35.6rem;height:12rem" v-model="faqDescr" onfocus="currentInput=this" @dblclick="viewText('faqDescr', faqDescr)"></textarea></div>
+			<div style="margin-bottom: 0.2rem">
+				<button class="v-button" onclick="add()">+</button>
+				<button class="v-button" onclick="del()">-</button>
+				<code>&lt;sub0/&gt;...  &lt;m&gt;&lt;m/&gt;&lt;mm&gt;&lt;mm/&gt; 双击放大输入框</code>
+			</div>
+			<div v-for="(item, index) in sub">
+				<textarea class="v-text" style="width:35.6rem;height:6rem;" rows="4" v-model="sub[index]" @dblclick="viewText('sub', sub[index], index)"></textarea>
+			</div>
+		</div>
+		<div id="faqDescrView" v-html="faqDescrView" class="markdown-body" style="margin-left:36rem"></div>
+	</td>
+</tr>
+<tr>
+	<th>回答</th>
+	<td>
+		<div style="float:left;margin-bottom:-0.4rem">
+            <div><textarea class="v-text" id="faqAnswer" style="width:35.6rem;height:12rem" v-model="faqAnswer" onfocus="currentInput=this" @dblclick="viewText('faqAnswer', faqAnswer)"></textarea></div>
+            <div style="margin-bottom: 0.2rem">
+                <button class="v-button" onclick="answerAdd()">+</button>
+                <button class="v-button" onclick="answerDel()">-</button>
+			</div>
+			
+			<div v-for="(item, index) in answerSub">
+				<textarea class="v-text" style="width:35.6rem;height:6rem" rows="4" v-model="answerSub[index]" @dblclick="viewText('answerSub', answerSub[index], index)"></textarea>
+			</div>
+			
+		</div>
+		<div id="faqAnswerView" v-html="faqAnswerView" class="markdown-body" style="margin-left:36rem"></div>
+	</td>
+</tr>
+
+<tr>
+	<td colspan="2" style="text-align: center;">
+		<button class="v-button-primary" onclick="ok()"><span v-if="faqId == 0">新增</span><span v-if="faqId != 0">修改</span></button>
+		<button class="v-button-primary" onclick="writeToLocal(false)" v-if="faqId != 0">生成本地文件</button>
+	</td>
+</tr>
+</table>
+
+<div id="textModal" v-cloak>
+<modal v-if="modal.showModal" :modal="modal">
+<div slot="body">
+    <textarea v-model="p.value" style="width:calc(100% - 0.6rem);height:30rem;" class="v-text"></textarea>
+</div>
+</modal>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+base.initLoading();
+// 截图，用Ctrl+V
+document.body.addEventListener('paste', function(e) {
+	if (!e.clipboardData) return;
+	
+	for (var i = 0; i < e.clipboardData.items.length; i++) {
+		var c = e.clipboardData.items[i];
+		var f = c.getAsFile();
+		if (f) {upload(f)};
+	}
+})
+
+var currentInput = null;
+function upload(file) {
+	var formData = new FormData();
+	formData.append("mFile", file);
+	let config = {headers:{"Content-Type":"multipart/form-data"}};
+	axios.post("auto/uploadImg/uploadFaq", formData, config).then(function(r) {
+		var path = "/img/faq/" + r.list[0];
+		
+		var editorId = currentInput != null ? currentInput.id : "faqDescr";
+		replaceSelection(editorId, "![](" + path + ")\r\n");
+		form[editorId] = document.getElementById(editorId).value;
+	})
+}
+
+var converter = new showdown.Converter();
+function getMarkdown(html, obj, i) {
+	if (!html) return "";
+	
+	html = html.replace(/<m>/g, function() {
+		i++;
+		return '<a href="#this" onclick="more(' + i + ')" class="left-arrow" id="' + 'arrow' + i + '"></a><span></span>' +
+			'<div id="' + 'div' + i + '" style="margin-top:-10px;margin-bottom:-10px;display:none">';
+	});
+	
+	html = html.replace(/<mm>/g, function() {
+		i++;
+		return '<a href="#this" onclick="more(' + i + ')" class="right-arrow" id="' + 'arrow' + i + '"></a><span></span>' +
+			'<div id="' + 'div' + i + '" style="margin-top:-10px;margin-bottom:-10px;">';
+	});
+	
+	html = html.replace(/<\/m>/g, '</div>');
+	html = html.replace(/<\/mm>/g, '</div>');
+	var len = (i >= 1000) ? obj.answerSub.length : obj.sub.length;
+	for (var n = 0; n < len; n++) {
+		html = html.replace(new RegExp("<sub" + n + "/>", "g"), function() {
+			if (i >= 1000) {
+				return obj.answerSub[n];
+			}
+			else {
+				return obj.sub[n];
+			}
+		});
+	}
+	
+	return converter.makeHtml(html);
+}
+
+function more(i) {
+	var arrowObj = document.getElementById("arrow" + i);
+	var divObj = document.getElementById("div" + i);
+	
+	var direction = arrowObj.getAttribute("class");
+	direction = direction == 'left-arrow' ? 'right-arrow' : 'left-arrow';
+	arrowObj.setAttribute("class", direction);
+	
+	var display = divObj.style.display == 'none' ? '' : 'none';
+	divObj.style.display = display;
+}
+
+function add() {
+	form.sub.push('');
+}
+
+function del() {
+	if (form.sub.length == 0) return;
+	form.sub.splice(-1, 1);
+}
+
+function answerAdd() {
+	form.answerSub.push('');
+}
+
+function answerDel() {
+	if (form.answerSub.length == 0) return;
+	form.answerSub.splice(-1, 1);
+}
+
+var initData = [[${pojo}]];
+if (initData == null) {
+	initData = {faqId:0, faqTitle:'', faqCategory:'tech', faqTimeType:'long', faqDescr:"", sub:[],  faqAnswer:"", answerSub:[]};
+}
+
+var form = new Vue({
+    el:'#faq',
+    data:initData,
+    computed:{
+    	faqDescrView:function() {
+    		return getMarkdown(this.faqDescr, this, 0);
+    	},
+    	faqAnswerView:function() {
+    		return getMarkdown(this.faqAnswer, this, 1000);
+    	}
+    },
+    methods: {
+    	refreshCode:function(id) {
+    		this.$nextTick(function () {
+    			if (!document.getElementById(id)) return;
+	    		const preEl = document.getElementById(id).querySelectorAll('code');
+	    		preEl.forEach((el) => {
+	    			hljs.highlightBlock(el)
+	    		})
+    		})
+    	}
+    },
+    watch: {
+    	faqDescr(n, o) {this.refreshCode("faqDescrView")},
+    	sub(n, o) {this.refreshCode("faqDescrView")},
+    	faqAnswer(n, o) {this.refreshCode("faqAnswerView")},
+    	answerSub(n, o) {this.refreshCode("faqAnswerView")}
+    },
+    mounted() {
+    	this.refreshCode("faqDescrView");
+    	this.refreshCode("faqAnswerView");
+    }
+})
+
+function writeToLocal(force) {
+	
+    loading.show();
+    axios.post("auto/faq/writeToLocal", {id:form.faqId, force:force}).then(function(r) {
+        if (r.code === 20000) {
+        	if (confirm(r.msg + ",是否覆盖？")) {
+        		writeToLocal(true);
+        	}
+        	else {
+        		loading.hide();
+        	}
+        }
+        else if (r.code === 0) {
+        	loading.hide();
+            alert("成功");
+        }
+    })
+}
+
+function ok() {
+    if (form.faqTitle == "") {alert("问题不能为空");return}
+    
+    var isInsert = form.faqId == 0;
+    var url = (isInsert ? "auto/faq/insert" : "auto/faq/update");
+    var name = (isInsert ? "新增" : "修改");
+    loading.show();
+    axios.post(url, form._data).then(function(r) {
+    	loading.hide();
+        if (r.code !== 0) return;
+        
+        if (isInsert) form.faqId = r.faqId;
+        if (opener) opener.location.reload();
+        alert(name + "成功");
+    })
+}
+
+var textModal = base.modal("textModal");
+
+function viewText(key, value, index) {
+	textModal.modal.key = key;
+	textModal.modal.index = index;
+    textModal.show('', {value:value}, function(p) {
+        if (textModal.modal.key == 'sub') {
+            Vue.set(form.sub, textModal.modal.index, p.value);
+        }
+        else if (textModal.modal.key == 'answerSub') {
+            Vue.set(form.answerSub, textModal.modal.index, p.value);
+        }
+        else {
+            form[textModal.modal.key] = p.value;
+        }
+        textModal.hide();
+    });
+}
+
+
+
+function replaceSelection(id, text) {
+	var editor = document.getElementById(id);
+	if (!editor.setSelectionRange) return;
+	
+	var selectionStart = editor.selectionStart;
+	var selectionEnd = editor.selectionEnd;
+	var selectStr = editor.value.substring(selectionStart, selectionEnd);
+	if (selectStr && selectStr.substring(selectStr.length - 1) == " ") {
+		text += " ";
+	}
+	var leftStr = editor.value.substring(0, selectionStart);
+	var rightStr = editor.value.substring(selectionEnd, editor.value.length);
+	var selectStr = editor.value.substring(selectionStart, selectionEnd)
+	editor.value = leftStr + text + rightStr;
+    editor.focus();
+}
+</script>
+</body>
+</html>

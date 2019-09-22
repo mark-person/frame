@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+<link th:replace="base/base-fragment::md5"/>
+
+<script>
+if (top != self) {
+    // 在iframe页时，跳到最外面
+    top.location.href = location.href;
+}
+</script>
+</head>
+<body>
+
+
+<div id="login" v-cloak>
+
+
+<table class="v-table" style="width:34rem;margin:auto;margin-top:5rem">
+<tr>
+    <th class="w-name">账号</th>
+    <td><input type="text" class="v-text" v-model="param.a" maxlength="32"><span class="v-error">{{v.a}}</span></td>
+</tr>
+<tr>
+    <th>密码</th>
+    <td><input type="password" class="v-text" v-model="param.p" maxlength="32"><span class="v-error">{{v.p}}</span></td>
+</tr>
+
+<tr>
+    <td colspan="2" style="text-align: center;"><button class="v-button" @click="doLogin">登录</button></td>
+</tr>
+
+</table>
+
+
+</div>
+
+
+<script type="text/javascript" th:inline="javascript">
+
+var v = [[${v}]];
+
+
+
+
+var login = new Vue({el: '#login',data:{param:{a:'admin', p:'admin'}},
+	methods: {
+		doLogin:function() {
+			if (!this.isValid) {return}
+			
+			this.param.s = md5(this.param.a + this.param.p + v);
+			axios.post("auth/login/doLogin", this.param).then(function(res) {
+                location.href = baseURL + "auth/index/menu";
+            })
+		}
+	},
+	computed: {
+		v:function() {
+			return {
+				a:V.notNull(this.param.a),
+				p:V.notNull(this.param.p)
+			}
+		},
+		isValid:function () {
+            for (o in this.v) {
+                if (this.v[o] != "") return false;
+            }
+            return true;
+        }
+	}
+})
+
+</script>
+
+</body>
+</html>
+
+
+

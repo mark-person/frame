@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+<link th:replace="base/base-fragment::date"/>
+
+</head>
+<body>
+
+<div th:replace="monitor/monitorFragment::nav('error')"></div>
+ 
+<div id="page" v-cloak>
+	<div class="v-title">
+		<label></label>
+		<label>服务:</label>
+		<select class="v-select" v-model="p.serviceId">
+			<option value="">全部</option>
+			<option th:value="${item.service_id}" th:text="${item.service_id}" th:each="item:${listService}"></option>
+		</select>
+		
+		<label>日期:</label>        
+        <input type="text" class="v-text" v-model="p.date" onclick="WdatePicker({onpicked:datePicked}" style="width:90px">         
+        <input type="text" class="v-text" v-model="p.beginTime" placeholder="开始时分秒" onclick="WdatePicker({dateFmt:'HH:mm:ss'})" style="width:90px">
+            -
+        <input type="text" class="v-text" v-model="p.endTime" placeholder="结束时分秒" onclick="WdatePicker({dateFmt:'HH:mm:ss'})" style="width:90px">   
+        <label>URI:</label><input type="text" class="v-text" v-model="p.uri" placeholder="全匹配URI">
+        <label>标记:</label><input type="text" class="v-text" v-model="p.marker" style="width:90px">
+		
+		<button class="v-button" @click="goto()">搜索</button>
+	</div>
+	<table class="v-table v-table-hover">
+	<tr>
+		<th class="w-id">服务</th>
+		<th class="w-id">访问时间</th>
+		<th class="w-id">URI</th>
+		<th class="w-id">queryString</th>
+		<th class="w-id">异常代码</th>
+		<th class="w-id">异常message</th>
+		<th class="w-id">操作</th>
+	</tr>
+	<tr v-for="item in list">
+		<td>{{item.service_id}}</td>
+		<td>{{item.error_time}}</td>
+		<td>{{item.uri_text}}</td>
+		<td>{{item.access_info.q}}</td>
+		<td>{{item.error_code}}</td>
+		<td>{{item.error_msg}}</td>
+		<td>
+            <a @click="viewDetail(item.startup_info)">详情</a>
+        </td>
+	</tr>
+	</table>
+	<div th:replace="base/base-fragment::page"></div>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+
+function datePicked(dp) {
+	vPage.p.date = dp.cal.getNewDateStr();
+}
+
+
+
+var vPage = base.page("monitor/console/listError", [[${data}]], {serviceId:'', date:[[${today}]]});
+
+
+</script>
+</body>
+</html>
+

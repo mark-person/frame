@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<link th:replace="base/base-fragment::common"/>
+
+<script type="text/javascript" th:src="@{/static/tool/jquery.min-3.3.1.js}"></script>
+<script type="text/javascript" th:src="@{/static/monitor/echarts-gauge-3.7.2.min.js}"></script>
+
+
+
+
+<script type="text/javascript" th:inline="javascript">
+$(function() {	
+	var listService = [[${listService}]];
+	var serviceList = new Vue({
+        el:'#serviceList',
+        data:{
+            list:listService
+        },
+        methods:{
+        	viewDisk:function(item) {
+        		return item.service_last_info.lastUsableSpace + "M/" + item.service_info.totalSpace + "M";
+        	}
+        },
+        mounted:function() {
+            this.list.forEach(function(o) {
+                createChart("memory" + o.service_id, "M", o.service_info.maxMemory, o.service_last_info.lastUseMemory);
+                createChart("cpu" + o.service_id, "%", 100, (o.service_last_info.lastProcessCpuLoad * 100).toFixed(2));
+                createChart("response" + o.service_id, "ms", 3000, o.service_last_info);
+                createChart("dsActive" + o.service_id, "个",  o.service_info.maxActive, o.service_last_info.lastDsActive);
+            })
+        }
+	});
+});
+
+function createChart(id, unit, chartMax, chartValue) {
+	var option = {
+		series: [{
+			max:chartMax,
+			type:'gauge',
+    	    detail:{formatter:'{value}'},
+    	    data:[{value:chartValue, name:unit}],
+    	    axisLine:{lineStyle:{width:4,shadowColor:'#fff',}},
+            splitLine:{length:15,lineStyle:{width:1,color:'black',shadowColor:'#fff',}}
+    	}]
+	}
+	var chart = echarts.init(document.getElementById(id));
+	chart.setOption(option);
+}
+
+
+</script>
+
+
+<style type="text/css">
+.gaugeTh {width:210px}
+.gaugeTd {width:240px;height:240px;margin:-20px;margin-bottom:-30px}
+</style>
+
+</head>
+
+<body>
+<div th:replace="monitor/monitorFragment::nav('console')"></div>
+ 
+<div id="serviceList" v-cloak>
+	<div class="v-title">
+	   <label class="v-title-label" th:text="${title}">服务:</label>(<span th:text="${currentServiceId}"></span>)
+	</div>
+	<table class="v-table" style="margin-bottom:0.5rem;">
+		<tr>
+			<th style="width:210px;">服务</th>
+			<th class="gaugeTh">堆内存</th>
+			<th class="gaugeTh">进程CPU使用率</th>
+			<th class="gaugeTh">服务响应时间</th>
+			<th class="gaugeTh">数据库连接</th>
+			<th>硬盘</th>  
+		</tr>
+		<tr v-for="item in list">
+			<td style="text-align:left">{{item.service_id}}<br>
+			项目:{{item.service_info.artifactId}}<br>
+			版本:{{item.service_info.version}}<br>
+			系统:{{item.service_info.osName}}<br>
+			内存:{{item.service_info.totalPhysicalMemory}}M<br>
+			核数:{{item.service_info.availableProcessors}}<br>
+			更新:{{item.service_last_info.modified}}<br>
+			并发:{{item.service_last_info.lastConcurrentN}}<br>
+			
+			 </td>
+			 <td><div class="gaugeTd" :id="'memory'+item.service_id"></div></td>
+			 <td><div class="gaugeTd" :id="'cpu'+item.service_id"></div></td>
+			 <td><div class="gaugeTd" :id="'response'+item.service_id"></div></td>	
+			 <td><div class="gaugeTd" :id="'dsActive'+item.service_id"></div></td>
+			 <td>{{viewDisk(item)}}</td>
+		</tr>
+	</table>
+</div>
+
+<!-- 
+模式:{{if $item.isWarning}}<font style="color:red">warning=1</font>{{else}}warning=0{{/if}},
+                 {{if $item.isDebug}}<font style="color:red">debug=1</font>{{else}}debug=0{{/if}}
+
+ -->
+
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+<script type="text/javascript" th:src="@{/base/dict/list?code=auth.account_status}"></script>
+</head>
+<body>
+
+<div id="page" v-cloak>
+	<div class="v-title">
+		<label>子帐号管理</label>
+		<button class="v-button" onclick="add()">新增</button>
+		<input type="text" class="v-text" v-model="p.demoName" maxlength="32">
+		<button class="v-button" @click="goto()">搜索</button>
+	</div>
+	<table class="v-table v-table-hover">
+	<tr>
+		<th class="w-id">子帐号ID</th>
+		<th class="w-title">子账号</th>
+		<th>账号状态</th>
+		<th>操作</th>
+	</tr>
+	<tr v-for="item in list">
+		<td>{{item.accountId}}</td>
+		<td>{{item.loginAccount}}</td>
+		<td>{{dict.account_status[item.accountStatus]}}
+		   <a v-if="item.accountStatus == 1" @click="disable(item)">[禁用]</a>
+		   <a v-if="item.accountStatus == 2" @click="enable(item)">[解禁]</a> 
+		</td>
+		<td class="w-action">
+			<a @click="remove(item)">[删除]</a>
+			<a @click="editAccount(item)">[修改帐号]</a>
+			<a @click="editPassword(item)">[修改密码]</a>
+		</td>
+	</tr>
+	</table>
+	<div th:replace="base/base-fragment::page"></div>
+</div>
+
+
+<div id="modal" v-cloak>
+<modal v-if="modal.showModal" :modal="modal">
+<table class="v-table" slot="body">
+    <tr>
+        <th class="w-name">子帐号</th>
+        <td><input class="v-text" type="text" v-model="p.loginAccount" maxlength="32"><span class="v-error">{{v.loginAccount}}</span></td>
+    </tr>
+    <tr>
+        <th>子账号密码</th>
+        <td><input class="v-text" type="text" v-model="p.loginPassword" maxlength="32"><span class="v-error">{{v.loginPassword}}</span></td>
+    </tr>
+</table>
+</modal>
+</div>
+
+<div id="accountModal" v-cloak>
+<modal v-if="modal.showModal" :modal="modal">
+<table class="v-table" slot="body">
+    <tr>
+        <th class="w-name">子帐号ID</th>
+        <td>{{p.accountId}}</td>
+    </tr>
+    <tr>
+        <th>子账号</th>
+        <td><input class="v-text" type="text" v-model="p.loginAccount" maxlength="32"><span class="v-error">{{v.loginAccount}}</span></td>
+    </tr>
+</table>
+</modal>
+</div>
+
+
+<div id="passwordModal" v-cloak>
+<modal v-if="modal.showModal" :modal="modal">
+<table class="v-table" slot="body">
+    <tr>
+        <th class="w-name">子账号ID</th>
+        <td class="v-span">{{p.accountId}}</td>
+    </tr>
+    <tr>
+        <th>子账号</th>
+        <td class="v-span">{{p.loginAccount}}</td>
+    </tr>
+    <tr>
+        <th>子账号密码</th>
+        <td><input class="v-text" type="text" v-model="p.loginPassword" maxlength="32"><span class="v-error">{{v.loginPassword}}</span></td>
+    </tr>
+</table>
+</modal>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+
+var vPage = base.page("auth/authChild/list", [[${data}]]);
+
+function add() {
+	vModal.show('新增', function(p) {
+        axios.post("auth/authChild/insert", p).then(function(res) {
+            vModal.hide();
+            vPage.goto();
+        })
+    })
+}
+
+var vModal = base.modal("modal", function(p) {
+	return {
+		loginAccount:V.notNull(p.loginAccount),
+		loginPassword:V.notNull(p.loginPassword) || util.validatePassword(p.loginPassword)
+	}
+})
+
+var accountModal = base.modal("accountModal", function(p) {
+    return {
+        loginAccount:V.notNull(p.loginAccount)
+    }
+})
+
+var passwordModal = base.modal("passwordModal", function(p) {
+    return {
+        loginPassword:V.notNull(p.loginPassword) || util.validatePassword(p.loginPassword)
+    }
+})
+
+function editAccount(item) {
+    accountModal.show("修改账号", item, function(p) {
+        axios.post("auth/authChild/updateAccount", {accountId:p.accountId, loginAccount:p.loginAccount}).then(function(res) {
+            accountModal.hide();
+            item.loginAccount = p.loginAccount;
+        })
+    });
+}
+
+function editPassword(item) {
+    passwordModal.show("修改密码", item, function(p) {
+        axios.post("auth/authChild/updatePassword", {accountId:p.accountId, loginPassword:p.loginPassword}).then(function(res) {
+            passwordModal.hide();
+        })
+    });
+}
+
+function remove(p) {
+    var v = prompt("确定要删除子账号" + p.loginAccount + "?请输入要删除子账号:");
+    if (v == null) return;
+    if (v != p.loginAccount) {alert("子账号不相同");return;}
+    
+    axios.post("auth/authChild/deleteChild", {id:p.accountId}).then(function(res) {
+        vPage.goto();
+    })
+}
+
+function disable(item) {
+    if (!confirm("确定要禁用子账号" + item.loginAccount)) return;
+    
+    axios.post("auth/authChild/disable", {id:item.accountId}).then(function(res) {
+    	item.accountStatus = res.accountStatus;
+    })
+}
+
+function enable(item) {
+	if (!confirm("确定要解禁子账号" + item.loginAccount)) return;
+	
+    axios.post("auth/authChild/enable", {id:item.accountId}).then(function(res) {
+    	item.accountStatus = res.accountStatus;
+    })
+}
+
+
+util.validatePassword = function(value) {
+    // 最少八位且包含字母和数字
+    var exp = '(?=.*[0-9])(?=.*[a-zA-Z]).{8,}';
+    if (! new RegExp(exp).test(value)) {
+        return "最少八位且包含字母和数字";
+    }
+}
+</script>
+</body>
+</html>
+

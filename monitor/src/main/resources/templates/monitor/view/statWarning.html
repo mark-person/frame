@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+
+</head>
+<body>
+
+<div th:replace="monitor/monitorFragment::nav('statWarning')"></div>
+ 
+<div id="page" v-cloak>
+	<div class="v-title">
+		<label>URI:</label><input type="text" class="v-text" v-model="p.uriText" placeholder="全匹配URI">
+		<button class="v-button" @click="goto()">搜索</button>
+		<span>1:未关闭连接;2:for update不加事务;3:sql没有加上where;4:事务个数大于1;5:多个操作SQL没有事务6:sql注入风险7:</span>
+	</div>
+	<table class="v-table v-table-hover">
+	<tr>
+		<th class="w-id">URI</th>
+        <th class="w-id">最初访问时间</th>
+        <th class="w-id">最后访问时间</th>
+        <th class="w-id">警告内容</th>
+	</tr>
+	<tr v-for="item in list">
+		<td>{{item.uri_text}}</td>
+        <td>{{item.firsted}}</td>
+        <td>{{item.lasted}}</td>
+        <td>{{toStr(item.content)}}</td>
+	</tr>
+	</table>
+	<div th:replace="base/base-fragment::page"></div>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+
+function toStr(v) {
+	v = v.toString(2);
+	var r = [];
+	var index = 0;
+	for (var i = v.length - 1; i >= 0; i--) {
+		if (String.fromCharCode(v.charCodeAt(i)) == 1) {
+			r.push(index);
+		}
+		index++;
+	}
+	return r.join(",");
+}
+
+var vPage = base.page("monitor/console/listStatWarning", [[${data}]], {serviceId:''});
+
+
+</script>
+</body>
+</html>
+

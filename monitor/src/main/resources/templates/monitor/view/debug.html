@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+<link th:replace="base/base-fragment::date"/>
+
+</head>
+<body>
+
+<div th:replace="monitor/monitorFragment::nav('debug')"></div>
+ 
+<div id="page" v-cloak>
+	<div class="v-title">
+		<label>服务:</label>
+		<select class="v-select" v-model="p.serviceId">
+			<option value="">全部</option>
+			<option th:value="${item.service_id}" th:text="${item.service_id}" th:each="item:${listService}"></option>
+		</select>
+		
+		<label>日期:</label>	
+		<input type="text" class="v-date" v-model="p.date" th:value="${date}" @click="base.date(p, 'date')">		
+        <input type="text" class="v-date" v-model="p.beginTime" placeholder="开始时分秒" @click="base.time(p, 'beginTime')">
+    	-
+   		<input type="text" class="v-date" v-model="p.endTime" placeholder="结束时分秒" @click="base.time(p, 'endTime')">	
+		<label>URI:</label><input type="text" class="v-text" v-model="p.uri" placeholder="全匹配URI">
+		<label>标记:</label><input type="text" class="v-text" v-model="p.marker">
+	
+		
+		<button class="v-button" @click="query(p)">搜索</button>
+	</div>
+	
+	
+	<table class="v-table v-table-hover">
+	<tr>
+		<th class="w-id">服务</th>
+        <th class="w-id">访问时间</th>
+        <th class="w-id">URI</th>
+        <th class="w-id">queryString</th>
+        <th class="w-id">花费时间ms</th>
+        <th class="w-id">IP</th>
+        <th class="w-id">marker</th>
+        <th class="w-id">操作</th>
+	</tr>
+	<tr v-for="item in list">
+		<td>{{item.service_id}}</td>
+            <td>{{item.debug_time}}</td>
+            <td>{{item.uri_text}}</td>
+            <td>{{item.access_info.q}}</td>
+            <td>{{item.spend_time}}</td>
+            <td>{{item.access_info.ip}}</td>
+            <td>{{item.marker}}</td>
+            <td class="w-action"><a @click="viewDetail(item)">详情</a><a @click="viewDebugSql(item)">list</a></td>
+	</tr>
+	</table>
+	<div th:replace="base/base-fragment::page"></div>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+function query(p) {
+	if (p.beginTime != "" || p.endTime != "") {
+		if (!p.date || p.date  == "") {
+			alert("查询时分秒必须选择日期");
+			return;
+		}
+	}
+	vPage.goto();
+}
+
+function viewDebugSql(item) {
+	axios.post("monitor/console/listDebugSql", {accessId:item.access_id}).then(function(res) {
+		var value = formatJson(JSON.stringify(res));
+	    textModal.show('', {value:value});
+	})
+}
+
+
+var vPage = base.page("monitor/console/listDebug", [[${data}]], {serviceId:''});
+
+
+</script>
+</body>
+</html>
+

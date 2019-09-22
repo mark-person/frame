@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+<link th:replace="base/base-fragment::select2"/>
+
+
+<style type="text/css">
+body {font-family: Menlo, Consolas, monospace;color: #444;}
+.item {cursor: pointer;}
+.bold {font-weight: bold;}
+ul {padding-left: 1em;line-height: 1.5em; list-style-type: dot;}
+
+.fa-folder,.fa-folder-open {color:#FFE793;width:1rem}
+.node-text {padding-left:5px}
+
+.modal-wrapper {vertical-align: top;}
+.modal-container {margin-left:17rem;margin-top:3rem}
+</style>
+    
+</head>
+<body>
+
+ <!-- item template -->
+<script type="text/x-template" id="item-template">
+<li>
+	<div class="bold" style="display:flex" onmouseover="itemOver(this)" @mouseout="itemOut(this, event.currentTarget)">
+        <div style="width:12rem" @click="resClick" :initChildList="initChildList()">
+            <span :class="util.getResIcon(model.type, open)"></span><span class="node-text">{{model.t}}</span>
+            <span @click="toggle" v-if="isFolder && model.id != -1">[{{open ? '-' : '+'}}]</span>
+        </div>
+        <span v-if="model.pId" class="tree-action" style="display:none">
+            <a @click="edit">[修改]</a>
+            <a @click="up" v-if="index != 0" class="fa fa-arrow-up" title="上移"></a>
+            <a @click="down" v-if="index != (cLen - 1)" class="fa fa-arrow-down" title="下移"></a>
+            <a @click="top" v-if="index != 0" class="fa fa-level-up" title="置顶"></a>
+        </span>
+	</div>
+	<ul v-show="open || model.id == -1" v-if="isFolder">
+          <item class="item" v-for="(item, index) in model.c" :model="item" :index="index" :cLen="model.c.length"></item>
+          <li class="add" @click="addChild"><span class=" fa fa-plus-square"></span></li>
+	</ul>
+</li>
+</script>
+
+
+<div class="v-title">
+
+<label>资源管理</label>
+
+</div>
+
+<div style="display: flex;"><ul id="tree" style="width:26rem;margin-top:2px"><item class="item" :model="treeData"></item></ul>
+
+<div id="resUriDiv">
+<div class="fa fa-bars" style="display:flex;align-items:center;height:1.5rem;"><label>权限URI</label>&nbsp;<span v-if="!resUriList">(正在加载URI...)</span></div>
+<table class="v-table" v-cloak>
+	<tr>
+        <th class="w-name">{{util.getResTypeName(resType)}}名称</th>
+        <td class="v-span">{{resName}}</td>
+	</tr>
+	<tr v-if="resType == 1">
+        <th>菜单URI</th>
+        <td class="v-span">{{menuUri}}</td>
+    </tr>
+    <tr>
+        <th>权限URI</th>
+        <td>
+            <input type="hidden" :value="resId">
+            <select class="v-select" id="resUri" multiple="multiple" style="width:17rem" onchange="resUriChange(this)">
+                <option v-for="item in resUriList" :value="item">{{item}}</option>
+            </select> 
+       </td>
+    </tr>
+    <tr>
+        <td colspan="2" style="text-align:center;"><button class="v-button-primary" @click="saveResUri">确定</button></td>
+    </tr>
+</table>
+</div>
+
+</div>
+
+<div id="modal" v-cloak>
+<modal v-if="modal.showModal" :modal="modal">
+<table class="v-table" slot="body">
+    <tr>
+        <th class="w-name"><span v-if="!p.id">上级名称</span><span v-if="p.id">原{{util.getResTypeName(p.resType)}}名称</span></th>
+        <td><span class="v-span" v-if="!p.id">{{p.parentName}}</span><span class="v-span" v-if="p.id">{{p.initResName}}</span></td>
+    </tr>
+	<tr>
+		<th class="w-name">{{util.getResTypeName(p.resType)}}名称</th>
+		<td>
+            <input type="hidden" v-model="p.id"/>
+            <input type="hidden" v-model="p.parentId">
+            <input type="hidden" v-model="p.resType">
+            <input class="v-text" type="text" v-model="p.resName" maxlength="32"><span class="v-error">{{v.resName}}</span>
+        </td>
+	</tr>
+	<tr v-if="p.resType == 1">
+        <th>菜单URI</th>
+        <td>
+            <select class="v-select" id="menuUri" v-model="p.menuUri" onchange="menuUriChange(this)">
+                <option value="">请选择</option>
+                <option v-for="item in menuUriList" :value="item">{{item}}</option>
+		    </select>
+		    <span class="v-error">{{v.menuUri}}</span>
+		</td>
+		
+	</tr>
+	<tr v-if="p.resType == 1">
+        <th>菜单参数</th>
+        <td>
+            <input class="v-text" type="text" v-model="p.menuParam" maxlength="16">
+            <span>(name=value)</span>
+        </td>
+    </tr>
+</table>
+</modal>
+</div>
+
+<script type="text/javascript" th:src="@{/static/auth/console/res.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+
+function menuUriChange(obj) {
+	vModal.p.menuUri = obj.value;
+}
+
+function resUriChange(obj) {
+    var val = $("#resUri").val();
+    resUriVue.resUri = val;
+}
+
+var menuUriList = [];
+var resUriVue;
+// 异步加载系统uri
+axios.post("auth/res/getResUri").then(function(res) {
+    menuUriList = res.menuList;
+    
+    resUriVue = new Vue({el:'#resUriDiv', data:{resId:'', resUri:'', resType:'', resName:'-', menuUri:'', resUriList:res.resList}, 
+        methods:{
+            saveResUri:function() {
+            	if (this.resId == "") {alert("请先选择资源"); return false}
+			    axios.post("auth/res/insertUri", {resId:this.resId, uri:this.resUri}).then(function(res) {
+			        alert("保存成功");
+			    })
+        	}
+        }
+    });
+    
+    $("#resUri").select2();
+});
+
+
+var update = function(p) {
+    var method = p.id ? 'update' : 'insert';
+    axios.post("auth/res/" + method, p).then(function(res) {
+        tree.treeData = res.tree;
+        vModal.hide();
+    })
+}
+
+var vModal = base.modal("modal", function(p) {
+    return {
+        resName:V.notNull(p.resName),
+        menuUri:p.resType == 1 ? V.notNull(p.menuUri) : ''
+    }
+})
+
+var treeChildrenMap = new Map();
+var beforeSelectedTarget;
+Vue.component('item', {template: '#item-template',props: {model: Object, index:Number, cLen:Number},
+	data: function() {return {open: false}},
+	computed: {
+		isFolder: function() { 
+			return this.model.type != 2;
+    	}
+  	},
+	methods: {
+		toggle: function() {
+			if (this.isFolder) {
+				this.open = !this.open
+			}
+			event.stopPropagation();
+	    },
+	    resClick: function() {
+	    	if (beforeSelectedTarget) {
+	    		beforeSelectedTarget.className = "";
+	    	}
+	    	beforeSelectedTarget = event.currentTarget;
+	    	event.currentTarget.className  = "v-selected";
+	    	
+	    	resUriVue.resId = this.model.id;
+	    	resUriVue.resType = this.model.type;
+	    	resUriVue.resName = this.model.t;
+	    	
+            axios.post("auth/res/getUri", {resId:this.model.id, resType:this.model.type}).then(function(res) {
+            	resUriVue.menuUri = res.menuUri;
+	    		$("#resUri").val(res.list).trigger('change');
+	        })
+	    },
+	    addChild: function() {
+			vModal.show("新增", {parentId:this.model.id, resType:this.model.type + 1, parentName:this.model.t, menuUri:''}, null, function() {
+				var interval = setInterval(function() {
+		            if ($("#menuUri").length != 0) {
+		            	window.clearInterval(interval);
+		            	$("#menuUri").select2();
+		            }
+		        }, 50);
+			});
+	    },
+	    edit: function() {
+	    	var menuUri = "";
+	    	var obj = this.model;
+	    	if (this.model.type == 1) {
+	    		axios.post("auth/res/getMenuUri", {resId:this.model.id}).then(function(res) {
+	    			menuUri = res.menuUri.split("?")[0];
+	    			var menuParam = res.menuUri.indexOf("?") > 0 ? res.menuUri.split("?")[1] : '';
+	    			vModal.show("修改", {menuUri:res.menuUri, id:obj.id, resType:obj.type, resName:obj.t, initResName:obj.t, menuParam:menuParam}, update, function() {
+                        var interval = setInterval(function() {
+                            if ($("#menuUri").length != 0) {
+                                window.clearInterval(interval);
+                                $("#menuUri").select2();
+                                $("#menuUri").val(menuUri).trigger('change');
+                            }
+                        }, 10);
+                    });
+	    		})
+	    	}
+	    	else {
+	    		vModal.show("修改", {id:obj.id, resType:obj.type, resName:obj.t, initResName:obj.t}, update);
+	    	}
+	    },
+	    up: function() {
+	    	var children = treeChildrenMap.get(this.model.pId);
+	    	var id = util.upSort(children, this.model.id);
+	    	updateResPrio(id);
+	    },
+	    down: function() {
+	    	var children = treeChildrenMap.get(this.model.pId);
+	    	var id = util.downSort(children, this.model.id);
+	    	updateResPrio(id);
+	    },
+	    top: function() {
+	    	var children = treeChildrenMap.get(this.model.pId);
+	    	var id = util.topSort(children, this.model.id);
+	    	updateResPrio(id);
+	    },
+	    initChildList: function() {
+	    	var children = treeChildrenMap.get(this.model.pId);
+	    	if (!children) {
+	    		treeChildrenMap.set(this.model.pId, [this.model.id]);
+	    	}
+	    	else {
+	    		children.push(this.model.id);
+	    	}
+	    }
+	}
+})
+
+var res = [[${res}]];
+var tree = new Vue({el: '#tree',data:{treeData:res.tree}})
+
+</script>
+
+</body>
+</html>
+
+

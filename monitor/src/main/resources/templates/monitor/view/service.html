@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+
+</head>
+<body>
+
+<div th:replace="monitor/monitorFragment::nav('service')"></div>
+ 
+<div id="page" v-cloak>
+	
+	<table class="v-table v-table-hover">
+	<tr>
+		<th class="w-id">服务</th>
+		<th class="w-name">项目-版本</th>
+		<th class="w-number">操作系统</th>
+		<th class="w-number">CPU核数</th>
+		<th class="w-number">物理内存</th>
+		<th class="w-number">最大堆内存</th>
+		<th class="w-number">DB最大数</th>
+		<th class="w-id">更新时间</th>
+		<th class="w-id">显示/隐藏</th>
+		<th class="w-id">排序</th>
+		<th class="w-number">操作</th>
+	</tr>
+	<tr v-for="(item, index) in list">
+		<td>{{item.service_id}}</td>
+		<td>{{item.service_info.artifactId}}-{{item.service_info.version}}</td>
+		<td>{{item.service_info.osName}}</td>
+		<td>{{item.service_info.availableProcessors}}</td>
+		<td>{{item.service_info.totalPhysicalMemory}}M</td>
+		<td>{{item.service_info.maxMemory}}M</td>
+		<td>{{item.service_info.maxActive}}</td>
+		<td>{{item.service_last_info.modified}}</td>
+		<td>
+			<span v-if="item.service_display == 1">显示</span>
+			<span v-if="item.service_display == 0">隐藏</span>
+            <a @click="display(item)">转换</a>
+        </td>
+        <td>
+        	<a @click="up(item)" v-if="index != 0" class="fa fa-arrow-up" title="上移">&nbsp;</a>
+            <a @click="down(item)" v-if="index != (list.length - 1)" class="fa fa-arrow-down" title="下移">&nbsp;</a>
+            <a @click="top(item)" v-if="index != 0" class="fa fa-level-up" title="置顶">&nbsp;</a>
+        </td>
+        <td><a @click="viewDetail(item)">详情</a></td>
+	</tr>
+	</table>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+
+var currentItem;
+function display(item) {
+	currentItem = item;
+	var display = (item.service_display == 1 ? 0 : 1);
+	axios.post("monitor/console/display", {serviceId:item.service_id, display:display}).then(function(res) {
+		currentItem.service_display = res.display;
+	})
+}
+
+function getServiceIdList() {
+	var list = [];
+	for (i in listVue.list) {
+		list.push(listVue.list[i].service_id);
+	}
+	return list;
+}
+
+var data = [[${data}]];
+var listVue = new Vue({
+    el:'#page',
+    data:{list:data.list},
+    methods:{
+    	up: function(item) {
+	    	var list = getServiceIdList();
+	    	var id = util.upSort(list, item.service_id);
+	    	updateServiceOrdinal(id);
+	    },
+	    down: function(item) {
+	    	var list = getServiceIdList();
+	    	var id = util.downSort(list, item.service_id);
+	    	updateServiceOrdinal(id);
+	    },
+	    top: function(item) {
+	    	var list = getServiceIdList();
+	    	var id = util.topSort(list, item.service_id);
+	    	updateServiceOrdinal(id);
+	    }
+    }
+})
+
+
+function updateServiceOrdinal(serviceId) {
+	axios.post("monitor/console/orderService", {serviceId:serviceId}).then(function(res) {
+		listVue.list = res.list;
+	})
+}
+
+util.topSort = function(resId, sortId) {
+	var r = [];
+	r.push(sortId);
+	for (var i = 0; i < resId.length; i++) {
+		if (sortId != resId[i]) {
+			r.push(resId[i]);
+		}
+	}
+	return r;
+}
+
+util.upSort = function(resId, sortId) {
+	var r = [];
+	for (var i = 0; i < resId.length; i++) {
+		if (i + 1 != resId.length && sortId == resId[i + 1]) {
+			r.push(resId[i + 1]);
+		}
+		else if (i != 0 && sortId == resId[i]) {
+			r.push(resId[i - 1]);
+		}
+		else {
+			r.push(resId[i]);
+		}
+	}
+	return r;
+}
+
+util.downSort = function(resId, sortId) {
+	var r = [];
+	for (var i = 0; i < resId.length; i++) {
+		if (i + 1 != resId.length && sortId == resId[i]) {
+			r.push(resId[i + 1]);
+		}
+		else if (i != 0 && sortId == resId[i - 1]) {
+			r.push(resId[i - 1]);
+		}
+		else {
+			r.push(resId[i]);
+		}
+	}
+	return r;
+}
+
+
+</script>
+</body>
+</html>
+

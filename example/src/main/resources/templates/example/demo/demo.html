@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+
+<!-- 支持多行(便于缓存),或者用,分开  -->
+<script type="text/javascript" th:src="@{/base/dict/list?code=core.demo_type}"></script>
+
+
+</head>
+<body>
+
+<div id="page" v-cloak>
+	<div class="v-title">
+		<label class="v-title-label">我是标题</label>
+		<!-- th:if="${insert}" -->
+		<button class="v-button" onclick="add()" >新增</button>
+		<input type="text" class="v-text" v-model="p.demoName" maxlength="32">
+		<button class="v-button" @click="goto()">搜索</button>
+	</div>
+	<table class="v-table v-table-hover">
+	<tr>
+		<th class="w-id" @click="sort('demo_id')">ID<i :class="getSortType('demo_id')"></i></th>
+		<th class="w-name" @click="sort('demo_name')">名称<i :class="getSortType('demo_name')"></i></th>
+		<th>DEMO_TYPE</th>
+		<th>DEMO_NUM</th>
+		<th>DEMO_DATE</th>
+		<th>操作</th>
+	</tr>
+	<tr v-for="item in list">
+		<td>{{item.demoId}}</td>
+		<td>{{item.demoName}}</td>
+		<td>{{dict.demo_type[item.demoType]}}</td>
+		<td class="v-right">{{item.demoNum}}</td>
+		<td>{{item.demoDate}}</td>
+		<td><a @click="edit(item)">修改</a></td>
+	</tr>
+	</table>
+	<div th:replace="base/base-fragment::page"></div>
+</div>
+
+<!-- <modal>里加 :width="modal.width='10rem'"  -->
+<div id="modal" v-cloak>
+<modal v-if="modal.showModal" :modal="modal">
+<table class="v-table" slot="body">
+	<tr>
+		<th class="w-name">DEMO_NAME</th>
+		<td><input class="v-text" type="text" v-model="p.demoName" maxlength="32"><span class="v-error">{{v.demoName}}</span></td>
+	</tr>
+	<tr>
+		<th>DEMO_TYPE</th>
+		<td>	
+			<select class="v-select" v-model="p.demoType">
+				<option v-for="(v, k) in base.listDict('demo_type')" :value="k">{{v}}</option>
+			</select>
+			<span class="v-error">{{v.demoType}}</span>
+		</td>
+	</tr>
+	<tr>
+		<th>DEMO_INT</th>
+		<td><input class="v-text" type="text" v-model="p.demoInt" maxlength="5"><span class="v-error">{{v.demoInt}}</span></td>
+	</tr>
+	<tr>
+		<th>DEMO_NUM</th>
+		<td><input type="text" class="v-text" v-model="p.demoNum" maxlength="7"><span class="v-error">{{v.demoNum}}</span></td>
+	</tr>
+	<tr>
+		<th>DEMO_DATE</th>
+		<td><input type="date" class="v-date" v-model="p.demoDate"></td>
+	</tr>
+</table>
+</modal>
+</div>
+
+
+<script type="text/javascript" th:inline="javascript">
+
+
+var page = base.page("auto/demo/list", [[${data}]]);
+
+var modal = base.modal("modal", function(p) {
+    return {
+        demoName:V.notNull(p.demoName),
+        demoType:V.notNull(p.demoType),
+        demoInt:V.notNull(p.demoInt) || V.isInt(p.demoInt),
+        demoNum:V.isNum(p.demoNum)
+    }
+});
+
+function add() {
+	modal.show('新增', {}, function(p) {
+	    axios.post("auto/demo/insert", p).then(function(res) {
+	        modal.hide();
+	    	page.goto();
+	    });
+	});
+}
+
+function edit(item) {
+	axios.post("auto/demo/get", {id:item.demoId}).then(function(res) {
+		update(res.pojo, item);
+	})
+}
+		
+function update(p, item) {
+	modal.show("修改", p, function(p) {
+		axios.post("auto/demo/update", p).then(function(res) {
+            modal.hide();
+            for (i in p) {item[i] = p[i]}
+        });
+    });
+}
+
+</script>
+</body>
+</html>
+

@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+
+<link rel="stylesheet" th:href="@{/static/auth/index/menu.css}"/>
+
+<style>
+.subShow {transition: max-height 0.25s ease-in;overflow: hidden;}
+.subHide {max-height: 0px;overflow: hidden;transition: max-height 0.25s ease-out;}
+/* <ul class="submenu" :style="'display:'+(f.s==1?'block':'')"> */
+</style>
+</head>
+<body>
+
+<div id="menuDiv" v-if="menuShow">
+	<ul id="accordion" class="accordion" v-cloak>
+	<li v-for="f in menu" :class="f.s=='1'?'open':''">
+		<div class="link" @click="onFolder(f)">
+			<i :class="'fa fa-folder'+(f.s=='1'?'-open':'')"></i>{{f.t}}<i class="fa fa-chevron-down"></i>
+		</div>
+		<ul :class="f.s==1?'submenu subShow':'submenu subHide'" :style="'max-height:' + (f.s=='1'?f.c.length*35+'px':'0')">
+			<li v-for="m in f.c" @click="onMenu(m)"><a :class="m.s==1?'menu-selected':''" href="#">{{m.t}}</a></li>
+		</ul>
+	</li>
+	</ul>
+</div>
+
+
+<div id="rightDiv" style="width:100%">
+
+<div class="top-div">
+	<a :class="'fa fa-chevron-'+(menuVue.menuShow?'left':'right')" style="padding:0px 20px;" @click="toggleMenu()" href="javascript:"></a>
+	<span>帐号：</span><span th:text="${account.loginAccount}"></span>
+	<span style="margin-left:20px">用户名称：</span><span th:text="${account.userName}"></span>
+	
+	<a @click="monitor()" style="margin-left:20px">日志监控</a>
+	
+	<a @click="index()" style="margin-left:20px">首页</a><span>｜</span>
+	<span th:if="${account.accountId != -1}"><a @click="editPassword()">修改密码</a>｜</span>
+    <a href="javascript:" @click="logout()">退出</a>&nbsp;&nbsp;
+</div>
+
+
+<iframe v-show="!showLoading" id="content" :src="src" @load="menuVue.isLoading=false;showLoading=false;"></iframe>
+
+<div v-show="showLoading" class="fa fa-refresh fa-spin fa-2x" style="width:100%;text-align:center;margin-top:2rem"></div>
+
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+
+
+
+
+var menu = [{id:1,t:'发布管理',s:1,c:[{id:2,t:'发布代码',s:0}]},
+	{id:3,t:'发版相关信息',s:0,c:[{id:4,t:'越权测试1',s:0},{id:5,t:'越权测试2',s:0}]},
+	{id:10,t:'发版相关信息',s:0,c:[{id:11,t:'越权测试1',s:0},{id:12,t:'越权测试2',s:0}]}
+	]
+	
+menu = [[${menu}]]
+menu[0].s = 1;
+var menuVue = new Vue({el:'#menuDiv', data:{menu:menu, selectedMenu:{}, menuShow:true, isLoading:false},
+	methods:{
+		onMenu:function(m) {
+			document.getElementById("content").src = m.uri;
+			
+			this.selectedMenu.s = 0;
+			this.selectedMenu = m;
+			m.s = 1;
+			
+			
+			// rightDiv.src = m.uri;
+			
+			this.isLoading = true;
+			// n毫秒没有加载完页面才出现loading
+		    setTimeout(function() {
+		        if (menuVue.isLoading) {
+		            rightDiv.showLoading = true;
+		        }
+		    }, 400);
+		   
+		    
+		    
+			
+		},
+		onFolder:function(f) {
+			for (var i = 0; i < this.menu.length; i++) {
+				if (this.menu[i].id != f.id) {
+					this.menu[i].s = 0;
+				}
+			}
+			f.s = (f.s == 1 ? 0 : 1);
+		}
+	}
+});
+
+var rightDiv = new Vue({el:'#rightDiv', data:{src:'/auth/index/home', showLoading:false},
+	methods:{
+		toggleMenu:function() {
+			menuVue.menuShow = (menuVue.menuShow) ? false : true;
+		},
+		monitor:function() {
+			open(baseURL + "monitor/console/console");
+		},
+		index:function() {
+			rightDiv.src = "/auth/index/home";
+		},
+		editPassword:function() {
+			alert("editPassword");	
+		},
+		logout:function() {
+			if (!confirm("确定退出?")) return;
+			location.href = baseURL + "auth/login/logout";
+		}
+	}
+});
+
+</script>
+</body>
+</html>
+
+

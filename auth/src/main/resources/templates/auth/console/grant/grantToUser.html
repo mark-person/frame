@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+
+
+<style type="text/css">
+body {font-family: Menlo, Consolas, monospace;color: #444;}
+.item {cursor: pointer;}
+.bold {font-weight: bold;}
+#treeDiv ul {padding-left: 1em;line-height: 1.5em; list-style-type: dot;}
+
+.fa-folder,.fa-folder-open {color:#FFE793;width:1rem}
+
+.fa-cogs {color:blue}
+</style>
+
+</head>
+<body>
+
+<div class="v-title">
+    <label>用户权限管理</label>
+</div>
+
+<div style="display: flex">
+<div id="page" v-cloak style="width:30rem">
+    <div>
+		<input type="text" class="v-text" v-model="p.demoName" maxlength="32">
+		<button class="v-button" @click="goto()">搜索</button>
+	</div>
+	<table class="v-table v-table-hover">
+	<tr>
+		<th>用户ID</th>
+		<th>登录账号</th>
+		<th>用户名称</th>
+	</tr>
+	<tr v-for="item in list" @click="userSelected(item)">
+		<td>{{item.userId}}</td>
+		<td>{{item.loginAccount}}</td>
+		<td>{{item.userName}}</td>
+	</tr>
+	</table>
+	<div th:replace="base/base-fragment::page"></div>
+</div>
+
+<div>
+ <!-- item template -->
+<script type="text/x-template" id="item-template">
+<li>
+    <div class="bold" style="display:flex">
+        <div style="width:12rem" :initChildList="initChildList()">
+            <i :class="util.getResIcon(model.type, open)"></i>
+            <i :class="util.getCheckIcon(model.checked)" @click="checkClick"></i>
+            <span class="node-text">{{model.t}}</span>
+            <span @click="toggle" v-if="isFolder && model.id != -1">[{{open ? '-' : '+'}}]</span>
+        </div>
+    </div>
+    <ul v-show="open || model.id == -1" v-if="isFolder">
+          <item class="item" v-for="(item, index) in model.c" :model="item" :index="index" :cLen="model.c.length"></item>
+    </ul>
+</li>
+</script>
+
+
+<div id="grantTitle">
+    <button class="v-button-primary" @click="saveUserRes">保存</button>
+    <span style="font-weight: bold;">{{title}}</span>
+</div>
+<div style="display: flex;" id="treeDiv"><ul id="tree" style="width:26rem;margin-top:2px"><item class="item" :model="treeData"></item></ul></div>
+
+
+</div>
+</div>
+
+
+<script type="text/javascript" th:inline="javascript">
+
+
+var checkArray = [];
+function setCheckArray(model) {
+    if (model.c) {
+        for (i in model.c) {
+            if (model.c[i].checked != 0) {
+                checkArray.push(model.c[i].id);
+            }
+            setCheckArray(model.c[i]);
+        }
+    }
+}
+
+var grantTitle = new Vue({el: '#grantTitle',data:{title:''}, 
+    methods: {
+    	saveUserRes:function() {
+    		var userId = grantTitle.userId;
+    		if (!userId) {alert("请选择用户"); return}
+    		
+    	    var model = tree.treeData;
+    	    checkArray = [];
+    	    
+    	    if (model.checked != 0) {
+    	        checkArray.push(model.id);
+    	    }
+    	    setCheckArray(model);
+    	    
+    	    axios.post("auth/grant/saveAuthorize", {accountId:userId, resId:checkArray}).then(function(res) {
+                alert("保存成功");
+            })
+    	}
+    }
+})
+
+util.getCheckIcon = function(check) {
+	if (!check || check == 0) return "fa fa-square-o fa-fw";
+	if (check == 1) return "fa fa-check-square fa-fw";
+	if (check == 2) return "fa fa-check-square-o fa-fw";
+}
+
+util.getResIcon = function(resType, open) {
+    if (resType == 0 && open) return "fa fa-folder-open";
+    if (resType == 0) return "fa fa-folder";
+    if (resType == 1) return "fa fa-list-ul";
+    if (resType == 2) return "fa fa-cogs";
+    return "fa fa-home";
+}
+
+var vPage = base.page("auth/grant/listUser", [[${data}]]);
+vPage.userSelected = function(item) {
+	grantTitle.userId = item.userId;
+    grantTitle.title = item.userName + "的权限";
+    
+    axios.post("auth/grant/getAuthorize", {accountId:item.userId}).then(function(res) {
+        var resIdMap = {};
+        for (i in res.resId) {
+        	resIdMap[res.resId[i]] = true;
+        }
+        var model = tree.treeData;
+        
+        // 有children并且checked
+        if (resIdMap[-1]) {
+        	model.checked = 2;
+        }
+        var tmpModelArray = [model];
+        initCheck(model, resIdMap, tmpModelArray);
+        
+        // alert(tmpModelArray.length)
+        for (index in tmpModelArray) {
+        	if (exsistChildNoCheck(tmpModelArray[index])) {
+        		tmpModelArray[index].checked = 1;
+        	}
+        }
+    })
+}
+
+
+function initCheck(model, resIdMap, tmpModelArray) {
+    if (model.c) {
+        for (i in model.c) {
+            if (resIdMap[model.c[i].id]) {
+            	model.c[i].checked = 2;
+            	if (model.c[i].c) {
+            		tmpModelArray.push(model.c[i]);
+            	}
+            }
+            initCheck(model.c[i], resIdMap, tmpModelArray);
+        }
+    }
+}
+
+
+var treeResIdMap = new Map();
+Vue.component('item', {template: '#item-template',props: {model: Object, index:Number, cLen:Number},
+    data: function() {return {open: false}},
+    computed: {
+        isFolder: function() { 
+            return this.model.type != 2;
+        }
+    },
+    methods: {
+        toggle: function() {
+            if (this.isFolder) {
+                this.open = !this.open
+            }
+            event.stopPropagation();
+        },
+        initChildList: function() {
+        	treeResIdMap.set(this.model.id, this.model);
+        },
+        checkClick: function() {
+        	// 0 空 1半 2全
+        	if (!this.model.checked || this.model.checked == 0) {
+        		this.model.checked = 2;
+        		setChildCheck(this.model, 2);
+        	}
+        	else {
+        		this.model.checked = 0;
+                setChildCheck(this.model, 0);
+        	}
+        	// 计算父类是否要全选
+        	allParentModel = [];
+        	getAllParent(this.model);
+        	for (pIndex in allParentModel) {
+        		
+        		var exsistCheck = exsistChildCheck(allParentModel[pIndex]);
+        		var exsistNoCheck = exsistChildNoCheck(allParentModel[pIndex]);
+        		
+        		if (exsistNoCheck != true) {
+        			allParentModel[pIndex].checked = 2;
+        		}
+        		else if (exsistCheck) {
+                    allParentModel[pIndex].checked = 1;
+                }
+        		else {
+        			allParentModel[pIndex].checked = 0;
+        		}
+        	}
+        	this.$forceUpdate();
+        }
+    }
+})
+
+var allParentModel = [];
+function getAllParent(model) {
+	if (!model.pId) {
+		return;
+	}
+	var parent = treeResIdMap.get(model.pId);
+	allParentModel.push(parent);
+	getAllParent(parent);
+}
+function exsistChildNoCheck(model) {
+	if (model.c) {
+        for (i in model.c) {
+            if (model.c[i].checked == 0) {
+            	return true;
+            }
+            if (exsistChildNoCheck(model.c[i])) {
+            	return true;
+            }
+        }
+    }
+}
+
+function exsistChildCheck(model) {
+    if (model.c) {
+        for (i in model.c) {
+            if (model.c[i].checked != 0) {
+                return true;
+            }
+            if (exsistChildCheck(model.c[i])) {
+            	return true;
+            }
+        }
+    }
+}
+
+function setChildCheck(model, checked) {
+    if (model.c) {
+    	for (i in model.c) {
+    		model.c[i].checked = checked;
+    		setChildCheck(model.c[i], checked);
+    	}
+    }
+}
+
+var res = [[${res}]];
+var tree = new Vue({el: '#tree',data:{treeData:res}})
+
+
+
+
+</script>
+</body>
+</html>
+

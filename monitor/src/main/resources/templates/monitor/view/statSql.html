@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+<link th:replace="base/base-fragment::format-sql"/>
+
+</head>
+<body>
+
+<div th:replace="monitor/monitorFragment::nav('statSql')"></div>
+ 
+<div id="page" v-cloak>
+	<div class="v-title">
+		<label></label>
+		<label>服务:</label>
+		<select class="v-select" v-model="p.serviceId">
+			<option value="">全部</option>
+			<option th:value="${item.service_id}" th:text="${item.service_id}" th:each="item:${listService}"></option>
+		</select>
+		
+		<button class="v-button" @click="goto()">搜索</button>
+	</div>
+	<table class="v-table v-table-hover">
+	<tr>
+		<th class="w-id">SQL</th>
+        <th class="w-id">平均响应ms</th>
+        <th class="w-number">次数</th>
+        <th class="w-number">总时间ms</th>
+        <th class="w-id">最慢用时ms</th>
+        <th class="w-time">最初访问时间</th>
+        <th class="w-time">最后访问时间</th>
+        <th class="w-id">[~10,~100,~1s,~3s,~10s,~]</th>
+        <th class="w-id">最大结果集</th>
+        <th class="w-id">操作</th>
+	</tr>
+	<tr v-for="item in list">
+		<td><div class="w-ellipsis" style="max-width:22rem" :title="item.sql_text">{{item.sql_text}}</div><a @click="viewSql(item.sql_text)">查看</a></td>
+        <td>{{item.avg_time}}</td>
+        <td>{{item.times}}</td>
+        <td>{{item.total_time}}</td>
+        <td>{{item.max_time}}</td>
+        <td>{{item.firsted}}</td>
+        <td>{{item.lasted}}</td>
+        <td>{{item.distribute}}</td>
+        <td>{{item.max_sql_count}}</td>
+		<td><a @click="viewDetail(item.max_detail)">详情</a></td>
+	</tr>
+	</table>
+	<div th:replace="base/base-fragment::page"></div>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+
+function viewSql(v) {
+	var value = sqlFormatter.format(v);
+	textModal.show('', {value:value});
+}
+
+
+var vPage = base.page("monitor/console/listStatSql", [[${data}]], {serviceId:''});
+
+
+</script>
+</body>
+</html>
+

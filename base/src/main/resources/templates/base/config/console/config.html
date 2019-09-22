@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+<link th:replace="base/base-fragment::format-json"/>
+<script type="text/javascript" th:src="@{/base/dict/list?code=base.config_type,base.config_status}"></script>
+</head>
+<body>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a th:href="@{/base/config/config}">配置参数</a></li> 
+    <li><a th:href="@{/base/config/configService}">配置服务</a></li>
+    <li><a th:href="@{/base/config/configResult}">配置刷新</a></li> 
+</ul>
+
+<div id="page" v-cloak>
+	<div class="v-title">
+		<label class="v-title-label">config</label>
+	</div>
+	<table class="v-table v-table-hover">
+	<tr>
+		<th class="w-id">config_name</th>
+		<th class="w-name">artifact_id</th>
+		<th class="w-name">config_type</th>
+		<th class="">config_status</th>
+		<th class="">config_value</th>
+		<th class="">config_desc</th>
+		<th class="w-time">修改时间</th>
+		<th class="w-action">操作</th>
+	</tr>
+	<tr v-for="item in list">
+		<td>{{item.configName}}</td>
+		<td>{{item.artifactId}}</td>
+		<td>{{dict.config_type[item.configType]}}</td>
+		<td>{{dict.config_status[item.configStatus]}}</td>
+		<td class="w-ellipsis" style="max-width:10rem">{{item.configValue}}</td>
+		<td class="w-ellipsis" style="max-width:10rem">{{item.configDesc}}</td>
+		<td>{{item.modified}}</td>
+		<td class="w-action">
+			<a @click="edit(item)" v-if="item.configType == 'arg'">[修改]</a>
+			<a @click="viewResult(item)">[刷新结果]</a>
+		</td>
+	
+	</tr>
+	</table>
+	<div th:replace="base/base-fragment::page"></div>
+</div>
+
+<div id="modal" v-cloak>
+<modal v-if="modal.showModal" :modal="modal">
+<table class="v-table" slot="body">
+	<tr>
+		<th class="w-id">值</th>
+		<td>
+			<textarea class="v-text" style="width:30rem;height:10rem" v-model="p.configValue" value=""></textarea>
+		</td>
+	</tr>
+</table>
+</modal>
+</div>
+<script type="text/javascript" th:inline="javascript">
+
+
+function viewResult(item) {
+	location.href = baseURL + "base/config/configResult?configName=" + item.configName;
+}
+
+var vPage = base.page("base/config/list", [[${data}]]);
+
+var modal = base.modal("modal", function(p) {
+	loading.show();
+	axios.post("base/config/update", p).then(function(res) {
+		modal.hide();
+		loading.hide();
+		alert(res.msg);
+		activeItem.configValue = res.configValue;
+	})
+})
+
+var activeItem;
+function edit(item) {
+	activeItem = item;
+	v = "";
+	if (item.configValue) {
+		v = formatJson(item.configValue);
+	}
+	
+	var p = {configValue:v, configName:item.configName};
+	modal.show("修改", p);
+}
+
+</script>
+</body>
+</html>
+

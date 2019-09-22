@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+<script type="text/javascript" th:src="@{/base/dict/list?code=core.faq_category,core.faq_time_type}"></script>
+</head>
+<body>
+<div id="page" v-cloak>
+	<div class="v-title">
+		<label class="v-title-label">我是标题</label>
+		<button class="v-button" onclick="add()" th:if="${faqAction}">新增</button>
+		<input type="text" class="v-text" v-model="p.faqTitle" maxlength="32">
+		<button class="v-button" @click="goto()">搜索</button>
+	</div>
+	<table class="v-table v-table-hover">
+	<tr>
+		<th>FAQ_ID</th>
+		<th>标题</th>
+		<th>TYPE</th>
+		<th>TIME_TYPE</th>
+		<th>created</th>
+		<th>ACTION</th>
+	</tr>
+	<tr v-for="item in list">
+		<td>{{item.faqId}}</td>
+		<td>{{item.faqTitle}}</td>
+		<td>{{dict.faq_category[item.faqCategory]}}</td>
+		<td>{{dict.faq_time_type[item.faqTimeType]}}</td>
+		<td>{{item.faqCreated}}</td>
+		<td><a href="javascript:" @click="edit(item.faqId)">修改</a></td>
+	</tr>
+	</table>
+	
+	<nav th:replace="base/base-fragment::page"></nav>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+base.page("auto/faq/list", [[${data}]]);
+
+function add() {
+	open(baseURL + 'auto/faq/faqAction');
+}
+
+function edit(id) {
+	open(baseURL + "auto/faq/faqAction?id=" + id);
+}
+</script>
+</body>
+</html>
+

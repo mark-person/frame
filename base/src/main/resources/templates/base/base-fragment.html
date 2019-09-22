@@ -1,0 +1,56 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<script th:fragment="common" type="text/javascript" th:inline="javascript">var baseURL = [[@{/}]];</script>
+<link   th:fragment="common" rel="stylesheet" th:href="@{/static/common/font-awesome/css/font-awesome.min-4.7.0.css}">
+<script th:fragment="common" type="text/javascript" th:src="@{/static/common/vue.all.js}"></script>
+<link   th:fragment="common" rel="stylesheet" th:href="@{/static/common/base/base.css}">
+<script th:fragment="common" type="text/javascript" th:src="@{/static/common/base/base.js}"></script>
+
+<script th:fragment="date" type="text/javascript" th:src="@{/static/tool/date/WdatePicker.js}"></script>
+
+<link   th:fragment="markdown" rel="stylesheet" th:href="@{/static/tool/markdown/github-markdown.css}">
+<script th:fragment="markdown" type="text/javascript" th:src="@{/static/tool/markdown/showdown.min.js}"></script>
+<script th:fragment="markdown" type="text/javascript" th:src="@{/static/tool/markdown/highlight.pack.js}"></script>
+
+<link   th:fragment="select2" rel="stylesheet" th:href="@{/static/tool/select2/select2.min.css}">
+<script th:fragment="select2" type="text/javascript" th:src="@{/static/tool/jquery.min-3.3.1.js}"></script>
+<script th:fragment="select2" type="text/javascript" th:src="@{/static/tool/select2/select2.full.min.js}"></script>
+
+<script th:fragment="format-json" type="text/javascript" th:src="@{/static/tool/format/format-json.js}"></script>
+<script th:fragment="format-sql" type="text/javascript" th:src="@{/static/tool/format/format-sql.js}"></script>
+
+<script th:fragment="md5" type="text/javascript" th:src="@{/static/tool/md5.js}"></script>
+
+
+<!-- page -->
+<nav th:fragment="page" class="pagination">
+	<ul>
+		<li v-if="page.pageNum != 1" @click="goto(1)"><span>«</span></li>
+		<li v-if="page.pageNum - 2 >= 1" @click="goto(page.pageNum - 2)"><span>{{page.pageNum - 2}}</span></li>
+		<li v-if="page.pageNum - 1 >= 1" @click="goto(page.pageNum - 1)"><span>{{page.pageNum - 1}}</span></li>
+		<li class="active"><span>{{page.pageNum}}</span></li>
+		<li v-if="page.pageNum + 1 <= page.totalNum" @click="goto(page.pageNum + 1)"><span>{{page.pageNum + 1}}</span></li>
+		<li v-if="page.pageNum + 2 <= page.totalNum" @click="goto(page.pageNum + 2)"><span>{{page.pageNum + 2}}</span></li>
+		<li v-if="page.pageNum != page.totalNum" @click="goto(page.totalNum)"><span>»</span></li>
+	</ul>
+	<select @change="goto(1)" v-model="page.pageSize">
+		<option value="10">10条</option><option value="25">25条</option><option value="50">50条</option>
+	</select>
+	<div>共<b>{{page.totalRows}}</b>条记录</div>
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

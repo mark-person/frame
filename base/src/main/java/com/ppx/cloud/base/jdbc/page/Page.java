@@ -1,0 +1,124 @@
+package com.ppx.cloud.base.jdbc.page;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.springframework.util.StringUtils;
+
+
+public class Page {
+
+	// 防止传入数量过大
+	private final static int MAX_PAGE_SIZE = 50;
+
+	private int pageSize = 10;
+
+	private int pageNum = 1;
+
+	private int totalRows;
+	
+	private int totalNum;
+
+	private String orderName;
+
+	private String orderType;
+	
+	private String unique;
+	
+	private Set<String> permitOrderNameSet = new HashSet<String>(4);
+	
+	
+	// 不能使用set开头，防止传参数攻击
+	public Page addDefaultOrderName(String orderName) {
+		this.orderName = StringUtils.isEmpty(this.orderName) ? orderName : this.orderName;
+		permitOrderNameSet.add(orderName);
+		return this;
+	}
+	
+	// 不能使用set开头，防止传参数攻
+	public Page addDefaultOrderType(String orderType) {
+		this.orderType = StringUtils.isEmpty(this.orderType) ? orderType : this.orderType;
+		return this;
+	}
+	
+	// 不能使用set开头，防止传参数攻
+	public Page addPermitOrderName(String... permitOrderName) {
+		permitOrderNameSet.addAll(Arrays.asList(permitOrderName));
+		return this;
+	}
+	
+	// 不能使用set开头，防止传参数攻
+    public Page addUnique(String unique) {
+        this.unique = unique;
+        return this;
+	}
+	 
+	public String getUnique() {
+        return unique;
+    }
+
+	public int getPageSize() {
+		return pageSize;
+	}
+
+    public void setPageSize(int pageSize) {
+		if (pageSize > MAX_PAGE_SIZE) {
+			throw new RuntimeException("pageSize:" + pageSize + ". MAX_PAGE_SIZE overflow:" + MAX_PAGE_SIZE);
+		}
+		this.pageSize = pageSize;
+	}
+
+	public int getPageNum() {
+		return pageNum;
+	}
+
+	public void setPageNum(int pageNum) {
+		this.pageNum = pageNum;
+	}
+
+	public int getTotalRows() {
+		return totalRows;
+	}
+
+	public void setTotalRows(int totalRows) {
+		this.totalRows = totalRows;
+	}
+
+	public String getOrderName() {
+		if (!StringUtils.isEmpty(orderName) && !permitOrderNameSet.contains(orderName)) {
+			throw new RuntimeException("IllegalRequestException orderName:" + orderName);
+		}
+		return orderName;
+	}
+
+	public void setOrderName(String orderName) {
+		this.orderName = orderName;
+	}
+
+	public String getOrderType() {
+		// 默认为desc
+		return StringUtils.isEmpty(orderType) ? "desc" : orderType;
+	}
+
+	public void setOrderType(String orderType) {
+		if (StringUtils.isEmpty(orderType) || "desc".equals(orderType) || "asc".equals(orderType)) {
+			this.orderType = orderType;
+		}
+		else {
+			throw new RuntimeException("IllegalRequestException orderType:" + orderType);
+		}
+	}
+
+	public int getTotalNum() {
+		totalNum = (int)Math.ceil((double)totalRows / pageSize);
+		return totalNum;
+	}
+
+	public void setTotalNum(int totalNum) {
+		this.totalNum = totalNum;
+	}
+	
+	
+
+}

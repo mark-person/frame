@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+<link th:replace="base/base-fragment::select2"/>
+<link th:replace="base/base-fragment::format-json"/>
+
+<style type="text/css">
+
+html {font-size: 12px}
+.v-select {width:9rem}
+.v-number {width:7rem}
+
+
+.columnSelected {background-color: #ddd;}
+.column-div>span {border:1px solid #ccc;box-shadow:inset 0 1px 1px rgba(0,0,0,.075);border-radius:4px;padding:5px;margin:0px 3px;cursor: pointer;line-height: 36px;white-space: nowrap;}
+.query-div {display: flex;align-items:center; margin-bottom: 2px;}
+.query-div select, .query-div input, .query-div button {margin-left:3px}
+
+button[disabled] {color:#D3D3D3}
+button[disabled]:hover {background-color: rgba(26,115,232,1)}
+</style>
+</head>
+<body>
+<form id="queryForm" v-cloak>
+	<div class="v-title">
+		<label class="v-title-label">DB</label>
+		<label>表：</label>
+		<select id="table" class="v-select" v-model="q.tableName" onchange="tableChange(this)" style="width:auto;">
+			<option value="">请选择</option>
+			<option th:each="item: ${tableList}" th:value="${item.value}" th:text="${item.text}"></option>
+		</select>
+		<select class="v-select" v-model="q.qKey">
+			<option value="">全部</option>
+			<option v-for="(item, i) in colList" :value="item.value">{{item.text}}</option>
+		</select>
+		<select class="v-select" style="width:60px" v-model="q.qOperator">
+			<option value="=">=</option>
+			<option value="like">like</option>
+			<option value=">">></option>
+			<option value=">=">>=</option>
+			<option value="<"><</option>
+			<option value="<="><=</option>
+			<option value=">">!=</option>
+		</select>
+		<select v-if="getTdType(q.qKey) == 'select'" class="v-select" v-model="q.qValue">
+				<option v-for="item in result.dict[q.qKey]" :value="item.v">{{item.t}}</option>
+		</select>
+		<input v-if="getTdType(q.qKey) == 'varchar' || getTdType(q.qKey) == 'span'" class="v-text" type="text" v-model="q.qValue">
+		<input v-if="getTdType(q.qKey) == 'number' || getTdType(q.qKey) == 'PRI'" class="v-number" type="number" v-model="q.qValue">
+		<input v-if="getTdType(q.qKey) == 'date' || getTdType(q.qKey) == 'timestamp'" class="v-date" type="date" v-model="q.qValue">
+		<span v-if="getTdType(q.qKey) == 'single'">{{q.qDesc}}
+			<input type="hidden" v-model="q.qValue"> <a href="#this" @click="selectSingle(-1, q.qKey)">选择</a>
+		</span>
+		<span v-if="getTdType(q.qKey) == 'chain'">{{q.qDesc}}
+			<input type="hidden" v-model="q.qValue"><a href="#this" @click="selectChain(-1, q.qKey)">选择</a>
+		</span>
+		
+		<button type="button" class="v-button" onclick="queryData()">查询</button>
+		
+		<select class="v-select" style="width:80px" v-model="q.limit">
+			<option value="10">limit 10</option>
+			<option value="200">limit 200</option>
+		</select>
+	</div>
+	
+	<div class="column-div">
+		<span v-for="(item, i) in colList" @click="columnClick(item.value, i)" :class="item.spanClass">{{item.text}}</span>
+	</div>
+</form>
+<table id="result" class="v-table v-table-hover" v-cloak>
+	<tr>
+		<th v-for="item in title" @click="sortTable(item.v, item.orderType)" class="v-pointer">{{item.t}}<span :class="item.orderType"></span></th>
+		<th>操作</th>
+	</tr>
+	<tr v-for="(item, row) in list">
+	<td v-for="(v, k) in item" v-if="noExistDescProp(k)">
+		<span v-if="getTdType(k) == 'PRI'">{{v}}</span>
+		<span v-if="getTdType(k) == 'single'">{{getDesc(item, k)}}
+			<input type="hidden" v-model="item[k]"> <a v-if="!isPrimaryKey(k) || item[k] == ''" href="#this" @click="selectSingle(row, k)">选择</a>
+		</span>
+		<span v-if="getTdType(k) == 'chain'">{{getDesc(item, k)}}
+			<input type="hidden" v-model="item[k]"><a v-if="!isPrimaryKey(k) || item[k] == ''" href="#this" @click="selectChain(row, k)">选择</a>
+		</span>
+		<select v-if="getTdType(k) == 'select'" class="v-select" v-model="item[k]" @change="dataChange(row, k)">
+			<option v-for="item in dict[k]" :value="item.v">{{item.t}}</option>
+		</select>
+		<input v-if="getTdType(k) == 'number'" class="v-number" type="number" v-model="item[k]" @keyup="dataChange(row, k)"> 
+		<input v-if="getTdType(k) == 'varchar'" class="v-text" type="text" v-model="item[k]" @keyup="dataChange(row, k)" @dblclick="viewText(item[k], row, k)">
+		<input v-if="getTdType(k) == 'date'" class="v-date" type="date" v-model="item[k]" @change="dataChange(row, k)"> 
+		<span v-if="getTdType(k) == 'timestamp'" style="white-space: nowrap;">{{v}}</span>
+		<span v-if="getTdType(k) == 'span'">{{v}}</span>
+		<span v-if="getTdType(k) == 'action'" class="w-action">
+			<button class="v-button-primary" @click="editOrAdd(v.type, row)" :disabled="v.disabled">
+				<span v-if="v.type == 'insert'">新增</span>
+				<span v-if="v.type == 'update'">修改</span>
+			</button>
+			<button class="v-button-primary" v-if="v.type == 'update'" @click="delRow(row)">删除</button>	
+		</span>
+	</td>
+	</tr>
+	<tr><td :colspan="title.length + 1">共{{count}}条记录<span v-if="count > 0 && count >= list.length" style="margin-left:10px">还有{{count - list.length + 1}}条未显示</span></td></tr>
+</table>
+
+<div id="modal" v-cloak>
+<modal v-if="modal.showModal" :modal="modal">
+<div slot="body">
+	<div>
+		<input class="v-text" type="text" v-model="p.queryVal" maxlength="32">
+		<button class="v-button" @click="singleQuery()">搜索</button><span>共{{count}}条记录</span>
+	</div>
+	<table class="v-table v-table-hover">
+		<tr>
+			<th v-for="v in title">{{v}}</th><th>操作</th>
+		</tr>
+		<tr v-for="item in list">
+			<td v-for="v in item">{{v}}</td><td><a href="#this" @click="singleOk(item)">OK</a></td>
+		</tr>
+	</table>
+</div>
+</modal>
+</div>
+
+<div id="chainModal" v-cloak>
+<modal v-if="modal.showModal" :modal="modal">
+<table slot="body" class="v-table">
+<tr>
+	<td>
+		<select class="single-select2 v-select" onchange="firstChange(this)">
+			<option value="">请选择</option>
+			<option v-for="item in firstList" :value="item.v">{{item.t}}</option>
+		</select>
+	</td>
+	<td>
+		<select class="single-select2 v-select" v-model="p.value" onchange="secondChange(this)">
+			<option value="">请选择</option>
+			<option v-for="item in secondList" :value="item.v">{{item.t}}</option>
+		</select>
+	</td>
+</tr>
+</table>
+</modal>
+</div>
+
+<div id="textModal" v-cloak>
+<modal v-if="modal.showModal" :modal="modal">
+<div slot="body" style="margin-right:0.7rem">
+	<textarea v-model="p.value" style="width:100%;height:22rem;margin-right:5rem" class="v-text"></textarea>
+</div>
+</modal>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+
+var singleModal = base.modal("modal");
+var textModal = base.modal("textModal");
+var chainModal = base.modal("chainModal");
+
+var queryForm = new Vue({
+    el:'#queryForm',
+    data:{colList:[], isOrder:false, q:{tableName:'', colVal:[],  qKey:'', qOperator:'=', qValue:'', limit:10, orderName:'', orderType:'', qDesc:''}},
+    methods: {
+    	columnClick: function(value, n) {
+    		var obj = queryForm.colList[n];
+    		if (obj.spanClass == "columnSelected") {
+    			obj.spanClass = "";
+    			for (var i = 0; i < queryForm.q.colVal.length; i++) {
+    				if (queryForm.q.colVal[i] == value) {
+    					queryForm.q.colVal.splice(i, 1);
+    					break;
+    				}
+    			}
+    		}
+    		else {
+    			obj.spanClass = "columnSelected";
+    			queryForm.q.colVal.push(value);
+    		}
+    		Vue.set(queryForm.colList, n, obj);
+    		
+    		// 对queryForm.colList排序
+    		var newColVal = [];
+    		for (var i = 0; i < queryForm.colList.length; i++) {
+    			for (var j = 0; j < queryForm.q.colVal.length; j++) {
+    				if (queryForm.colList[i].value == queryForm.q.colVal[j]) {
+    					newColVal.push(queryForm.q.colVal[j]);
+    					continue;
+    				}
+    			}
+    		}
+    		queryForm.q.colVal = newColVal;
+    	}
+    }
+});
+
+var result = new Vue({
+    el:'#result',
+    data:{title:[], list:[], dict:{}, type:{}, single:[], chain:[], primaryKey:[], count:0, needUpdate:[]},
+    methods:{
+    	getDesc:function(item, key) {return item[key + "__desc"]},
+    	noExistDescProp:function(v) {return v.indexOf('__desc') == -1},
+    	isPrimaryKey:function(key) {return result.primaryKey.indexOf(key) >-1 ? true : false},
+    	viewText:function(value, row, key) {
+    		textModal.row = row;
+    		textModal.key = key;
+    		if (value != "" && result.type[key] == "json") {
+    			value = formatJson(value);
+    		}
+    		textModal.show('', {value:value}, function(p) {
+    		    var i = textModal.row;
+    		    result.list[i][textModal.key] = p.value;
+    		    Vue.set(result.list, i, result.list[i]);
+    		    textModal.hide();
+    		    dataChange(i, textModal.key);
+    		});
+    	},
+    	sortTable:function(colCode, orderType) {
+    		orderType = orderType == "desc" ? "asc" : "desc";
+    		for (i in result.title) {
+    			result.title[i].orderType = (result.title[i].v == colCode ? orderType : "");
+    		}
+    		queryForm.q.orderName = colCode;
+    		queryForm.q.orderType = orderType;
+    		queryData(true);
+    	}
+    }
+});
+
+// $('#table').select2();
+
+function tableChange(obj) {
+	queryForm.q.tableName = obj.value;
+	queryForm.q.colVal = [];
+	queryForm.q.qKey = '';
+	
+	result.title = [];
+	result.list = [];
+	result.primaryKey = [];
+	result.count = 0;
+	
+    axios.post("auto/dbTool/listColumn", {tableName:obj.value}).then(function(res) {
+    	var d = res;
+    	// 栏位全部选中
+    	for (i in d.colList) {
+    		d.colList[i].spanClass = "columnSelected";
+    		queryForm.q.colVal.push(d.colList[i].value);
+    		if (d.colList[i].key == "PRI") {
+    			result.primaryKey.push(d.colList[i].value);
+    		}
+    	}
+    	
+    	queryForm.colList = d.colList;
+    	result.dict = d.dict;
+    	result.type = d.type;
+    	result.single = d.single;
+    	result.chain = d.chain;
+    });
+}
+
+function queryData(isOrder) {
+	if (queryForm.q.tableName == "") {alert("请选表");return false;}
+	
+	queryForm.isOrder = isOrder;
+	if (!isOrder) {
+		queryForm.q.orderName = "";
+		queryForm.q.orderType = "";
+	}
+	
+	var primaryKeyN = 0;
+	queryForm.q.colVal.forEach(function(o, i) {
+		if (result.primaryKey.indexOf(o) > -1) {
+			primaryKeyN++;
+		}
+	})
+	if (primaryKeyN != result.primaryKey.length) {alert("必须包含主键");return false;}
+	
+    axios.post("auto/dbTool/queryData", queryForm.q).then(function(res) {
+    	result.count = res.page.count;
+    	if (!queryForm.isOrder) {
+    		result.title = [];
+    		queryForm.q.colVal.forEach(function(o, i) {
+        		result.title.push({v:o, t:getColName(o), orderType:''});
+        	})
+    	}
+    	
+    	res.list.forEach(function(o, i) {
+    		o["action"] = {disabled:true, type:'update'};
+    	})
+    	
+    	// 添加一行用来新增
+    	var newObj = {};
+    	for (i in queryForm.q.colVal) {
+    		newObj[queryForm.q.colVal[i]] = "";
+    	}
+    	newObj["action"] = {disabled:true, type:'insert'};
+    	res.list.push(newObj);
+    	result.list = res.list;
+    });
+}
+
+function selectSingle(row, key) {
+	singleModal.row = row;
+	singleModal.key = key;
+	
+    axios.post("auto/dbTool/listSingleData", {tableName:queryForm.q.tableName, columnName:key}).then(function(res) {
+    	singleModal.title = res.title;
+    	singleModal.list = res.list;
+    	singleModal.count = res.count;
+    	singleModal.show('选择');
+    });
+}
+
+function singleOk(item) {
+	var id = "";
+	var name = "";
+	for (i in item) {
+		name = id !== "" ? item[i] : name;
+		id = id === "" ? item[i] : id;
+	}
+	
+	if (singleModal.row == -1) {
+		queryForm.q.qValue = id;
+		queryForm.q.qDesc = name;
+		singleModal.hide();
+	}
+	else {
+		var i = singleModal.row;
+		result.list[i][singleModal.key] = id;
+		result.list[i][singleModal.key + "__desc"] = name;
+		
+		Vue.set(result.list, i, result.list[i]);
+		singleModal.hide();
+		dataChange(singleModal.row, singleModal.key);
+	}
+}
+
+function selectChain(row, key) {
+	chainModal.row = row;
+	chainModal.key = key;
+    axios.post("auto/dbTool/listChainData", {tableName:queryForm.q.tableName, columnName:key}).then(function(res) {
+    	chainModal.firstList = res.list;
+    	chainModal.secondList = [];
+    	
+    	chainModal.show('选择级联', {}, function(p) {
+    	    var id = p.value;
+    	    if (!id) {alert("请选择");return;}
+    	            
+    	    var name = "";
+    	    chainModal.secondList.forEach(function(o, i) {
+    	        if (o.v == id) name = o.t;
+    	    });
+    	    
+    	    if (chainModal.row == -1) {
+    	        // 查询时选择级联
+    	        queryForm.q.qValue = id;
+    	        queryForm.q.qDesc = name;
+    	        chainModal.hide();
+    	    }
+    	    else {
+    	        // 列表里选择级联
+    	        var i = chainModal.row;
+    	        result.list[i][chainModal.key] = id;
+    	        result.list[i][chainModal.key + "__desc"] = name;
+    	        Vue.set(result.list, i, result.list[i]);
+    	        chainModal.hide();
+    	        dataChange(i, chainModal.key);
+    	    }
+    	});
+    	
+    	var interval = setInterval(function() {
+    		if ($("#chainModal .single-select2").length != 0) {
+    			window.clearInterval(interval);
+    			$("#chainModal .single-select2").select2();
+    		}
+    	}, 50);
+    });
+}
+
+function singleQuery() {
+	singleModal.p.tableName = queryForm.q.tableName;
+	singleModal.p.columnName = singleModal.key;
+	axios.post("auto/dbTool/listSingleData", singleModal.p).then(function(res) {
+    	singleModal.list = res.list;
+    	singleModal.count = res.count;
+    	singleModal.$forceUpdate();
+    });
+}
+
+function dataChange(row, key) {
+	result.needUpdate[row] = (!result.needUpdate[row] ? [] : result.needUpdate[row]);
+	result.needUpdate[row].push(key);
+	result.list[row]["action"].disabled = false;
+}
+
+function editOrAdd(type, row) {
+	singleModal.row = row;
+	var rowObj = result.list[row];
+	var param = {};
+	param.actionType = type;
+	// PK
+	param.idCode = [];
+	for (var i = 0; i < result.primaryKey.length; i++) {
+		var pk = result.primaryKey[i];
+		if (rowObj[pk]) {
+			param[pk] = rowObj[pk];
+			param.idCode.push(pk);
+		}
+	}
+	param.tableName = queryForm.q.tableName;
+	result.needUpdate[row].forEach(function(o, i) {
+		param[o] = rowObj[o];
+	});
+	
+	axios.post("auto/dbTool/editOrAdd", param).then(function(res) {
+    	if (res.code == 20000) {
+    		alert("新增成功");
+    		queryData();
+    	}
+    	else if (res.code == 20001) {
+    		alert("修改成功");
+    		result.list[singleModal.row]["action"].disabled = true;
+    	}
+    });
+}
+
+function delRow(row) {
+	if (!confirm("确定删除？")) return;
+	
+	var rowObj = result.list[row];
+	var param = {};
+	param.idCode = [];
+	for (var i = 0; i < result.primaryKey.length; i++) {
+		var pk = result.primaryKey[i];
+		if (rowObj[pk]) {
+			param[pk] = rowObj[pk];
+			param.idCode.push(pk);
+		}
+	}
+	param.tableName = queryForm.q.tableName;
+	
+	axios.post("auto/dbTool/delRow", param).then(function(res) {
+    	queryData();
+    });
+}
+
+function firstChange(obj) {
+	var param = {tableName:queryForm.q.tableName, columnName:chainModal.key, parentId:obj.value};
+    axios.post("auto/dbTool/listChainSecondData", param).then(function(res) {
+    	chainModal.secondList = res.list;
+    	chainModal.$forceUpdate();
+    });
+}
+
+function secondChange(obj) {
+	chainModal.p.value = obj.value;
+}
+
+function getTdType(key) {
+	if (!result) return "span";
+	
+	if (result.single.indexOf(key) > -1) return "single";
+	if (result.chain.indexOf(key) > -1) return "chain";
+	if (result.dict[key]) return "select";
+	if (key == "action") return "action";
+	if (result.primaryKey.indexOf(key) >-1) return "PRI";
+	
+	var keyType = result.type[key];
+	if (keyType) {
+		if (keyType == "decimal" || keyType.indexOf("int") > -1) return "number";
+		if (keyType == "varchar" || keyType == "timestamp" || keyType == "date") return keyType;
+		if (keyType == "json") return "varchar";
+	}
+	return "span";
+}
+
+function getColName(colVal) {
+	var r = "";
+	queryForm.colList.forEach(function(o, i) {
+		if (o.value == colVal) {
+			r = o.text;
+		} 
+	})
+	return r;
+}
+
+</script>
+</body>
+</html>
+
