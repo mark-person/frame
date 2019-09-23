@@ -42,7 +42,7 @@ public class ConfigController {
 		return mv;
 	}
 	
-	public Map<?, ?> listConfigResult(Page page, ConfigResult pojo) {
+	public Map<String, Object> listConfigResult(Page page, ConfigResult pojo) {
 		return ControllerReturn.page(page, impl.listConfigResult(page, pojo));
 	}
 	
@@ -62,5 +62,9 @@ public class ConfigController {
     
     public Map<String, Object> enableService(@RequestParam String serviceId) {
         return impl.enableService(serviceId);
+    }
+    
+    public Map<String, Object> reRequest(@RequestParam String configName, @RequestParam String serviceId) {
+        return impl.reRequest(configName, serviceId);
     }
 }

@@ -19,4 +19,6 @@ public interface ConfigApiServ {
 	void initConfigService(String artifactId);
 	
 	Map<String, Object> callSync(String configName, String configValue);
+	
+	Map<String, Object> reRequest(String serviceId,String configName, String configValue);
 }

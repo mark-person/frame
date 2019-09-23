@@ -11,13 +11,20 @@
 <ul class="nav nav-tabs">
     <li><a th:href="@{/base/config/config}">配置参数</a></li> 
     <li><a th:href="@{/base/config/configService}">配置服务</a></li>
-    <li class="active"><a th:href="@{/base/config/configResult}">配置刷新</a></li> 
+    <li class="active"><a th:href="@{/base/config/configResult}">配置刷新</a></li>
 </ul>
 
 <div id="page" v-cloak>
 	<div class="v-title">
 		<label class="v-title-label">configResult</label>
 		<input type="text" class="v-text" v-model="p.configName" maxlength="32">
+		
+		<label>execResult</label>
+		<select class="v-select" v-model="p.execResult">
+			<option value=''>全部</option>
+			<option v-for="(v, k) in base.listDict('exec_result')" :value="k">{{v}}</option>
+		</select>
+			
 		<button class="v-button" @click="goto()">搜索</button>
 	</div>
 	<table class="v-table v-table-hover">
@@ -33,10 +40,10 @@
 	   <td>{{item.configName}}</td>
        <td>{{item.serviceId}}</td>
        <td>{{dict.exec_result[item.execResult]}}</td>
-       <td>{{item.execDesc}}</td>
-       <td>{{item.created}}</td>
+       <td class="w-ellipsis w-title" :title="item.execDesc">{{item.execDesc}}</td>
+       <td>{{item.modified}}</td>
        <td>
-        <a v-if="item.execResult == 1" @click="request(item)">重新请求</a>
+        <a v-if="item.execResult == 0" @click="reRequest(item)">重新请求</a>
        </td>
 	</tr>
 	</table>
@@ -57,11 +64,17 @@
 </div>
 <script type="text/javascript" th:inline="javascript">
 
-function request(item) {
-	alert(item);
+function reRequest(item) {
+	axios.post("base/config/reRequest", {configName:item.configName,serviceId:item.serviceId}).then(function(res) {
+		
+		alert(res.msg);
+		
+		vPage.goto();
+	})
 }
 
-var vPage = base.page("base/config/listConfigResult", [[${data}]], {configName:[[${configName}]]});
+var vPage = base.page("base/config/listConfigResult", [[${data}]], {configName:[[${configName}]], execResult:''});
+
 
 
 

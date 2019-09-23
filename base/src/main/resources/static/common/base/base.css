@@ -16,8 +16,8 @@ a, a:link, a:active{text-decoration:none;color:blue;cursor: pointer;}
 .v-selected {background-color: #CDE8FF;}
 
 .w-id {width:6rem}
-.w-name {width:10rem}
-.w-title {min-width:12rem}
+.w-name {width:8rem}
+.w-title {max-width:10rem}
 .w-date {width:7rem}
 .w-number {width:4rem}
 .w-time {width:10rem}

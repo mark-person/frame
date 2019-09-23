@@ -54,7 +54,7 @@ create table base_config_result (
 	service_id 		varchar(32) not null,
 	exec_result 	tinyint not null default 1 comment '配置执行结果|{"0":"失败","1":"成功"}',
  	exec_desc 	 	varchar(256),
- 	created			timestamp not null default current_timestamp,
+ 	modified		timestamp not null default current_timestamp,
 	primary key (config_name, service_id)
 );
 

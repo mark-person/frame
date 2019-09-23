@@ -84,5 +84,49 @@ public class ConfigApiServImpl extends MyDaoSupport implements ConfigApiServ {
     }
     
     
+    // 重新单个请求
+    @SuppressWarnings("rawtypes")
+    public Map<String, Object> reRequest(String serviceId,String configName, String configValue) {
+    	Map<String, Object> returnMap = new HashMap<String, Object>();
+    	String msg = "";
+    	
+    	// 请求其它服务
+    	String uri = "base/configApi/sync";
+    	
+    	
+    	MultiValueMap<String, String> paramMap= new LinkedMultiValueMap<String, String>();
+    	paramMap.add("configName", configName);
+    	paramMap.add("configValue", configValue);
+    	
+    	RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<MultiValueMap<String, String>>(paramMap, new HttpHeaders());
+    	
+        String updateSql = "update base_config_result set exec_result = ?, exec_desc = ?, modified = now() where config_name = ? and service_id = ?";
+		
+		try {
+			String url = "http://" + serviceId + "/" + uri;
+	        ResponseEntity<Map> resultMap = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+			int code = (Integer)resultMap.getBody().get("code");
+			if (code == 0) {
+				getJdbcTemplate().update(updateSql, 1, null, configName, serviceId);
+				msg = "刷新成功";
+				returnMap.put("code", code);
+			}
+			else {
+				returnMap.put("code", 20000);
+			    msg += "接口:" + serviceId + "异常:" +  resultMap.getBody().get("msg") + ";";
+				getJdbcTemplate().update(updateSql, 0, resultMap.getBody().get("msg"), configName, serviceId);
+			}
+		} catch (Exception e) {
+			returnMap.put("code", 20000);
+			msg += "连接" + serviceId + "异常:" +  e.getMessage() + ";";
+			getJdbcTemplate().update(updateSql, 0, e.getMessage(), configName, serviceId);
+		}
+		
+		returnMap.put("msg", msg);
+    	return returnMap;
+    }
+    
+    
     
 }

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.cfg.ContextAttributes.Impl;
 import com.ppx.cloud.base.config.ConfigExec;
 import com.ppx.cloud.base.config.ConfigUtils;
 import com.ppx.cloud.base.config.api.ConfigApiServ;
@@ -81,11 +82,12 @@ public class ConfigServImpl extends MyDaoSupport {
 
 	public List<ConfigResult> listConfigResult(Page page, ConfigResult pojo) {
 		
-		var c = createCriteria("where").addAnd("config_name = ?", pojo.getConfigName());
+		var c = createCriteria("where").addAnd("config_name = ?", pojo.getConfigName())
+				.addAnd("exec_result = ?", pojo.getExecResult());
 		
 
 		var cSql = new StringBuilder("select count(*) from base_config_result").append(c);
-		var qSql = new StringBuilder("select * from base_config_result").append(c).append(" order by created desc");
+		var qSql = new StringBuilder("select * from base_config_result").append(c).append(" order by modified desc");
 		
 		List<ConfigResult> list = queryForPage(ConfigResult.class, page, cSql, qSql, c.getParaList());
 		return list;
@@ -111,4 +113,12 @@ public class ConfigServImpl extends MyDaoSupport {
         getJdbcTemplate().update(sql, serviceId);
         return ControllerReturn.of("serviceStatus", 1);
     }
+	
+	public Map<String, Object> reRequest(String configName, String serviceId) {
+		String valueSql = "select config_value from base_config_value where config_name = ?";
+		String configValue = getJdbcTemplate().queryForObject(valueSql, String.class, configName);
+		
+		return configApiServ.reRequest(serviceId, configName, configValue);
+		
+	}
 }
