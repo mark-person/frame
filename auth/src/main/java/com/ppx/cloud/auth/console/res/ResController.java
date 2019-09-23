@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import com.ppx.cloud.auth.annotation.ActionAuth;
 import com.ppx.cloud.base.mvc.ControllerReturn;
 import com.ppx.cloud.base.util.ApplicationUtils;
 
@@ -41,7 +42,7 @@ public class ResController {
 		return ControllerReturn.of("tree", resMap);
 	}
 	
-	public Map<?, ?> getResUri() {
+	public Map<String, Object> getResUri() {
 		List<String> menuList = new ArrayList<String>();
 		
         RequestMappingHandlerMapping r = ApplicationUtils.context.getBean(RequestMappingHandlerMapping.class);
@@ -60,9 +61,16 @@ public class ResController {
                 		menuList.add(uri.replaceFirst("/auto/", ""));
                 	}
                 	if (uri.startsWith("/auto/")) {
-                    	String[] u = uri.split("/");
-                        controllerSet.add(u[2] + "/*");
-                        resList.add(uri.replaceFirst("/auto/", ""));
+                		
+                		// test
+            			HandlerMethod handlerMethod = map.get(info);
+            			ActionAuth actionAuth = handlerMethod.getBeanType().getAnnotation(ActionAuth.class);
+            			// 有类注解ActionAuth，和返回Map，才出现在权限uri中
+            			if (Map.class != handlerMethod.getMethod().getReturnType() || actionAuth != null) {
+            				String[] u = uri.split("/");
+                            controllerSet.add(u[2] + "/*");
+                            resList.add(uri.replaceFirst("/auto/", ""));
+            			}
                     }
                 }
             }

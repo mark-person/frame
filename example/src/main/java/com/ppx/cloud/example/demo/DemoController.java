@@ -10,11 +10,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.ppx.cloud.auth.annotation.ActionAuth;
 import com.ppx.cloud.base.jdbc.page.Page;
 import com.ppx.cloud.base.mvc.ControllerReturn;
 
 
-
+@ActionAuth
 @Controller
 public class DemoController {
 	
