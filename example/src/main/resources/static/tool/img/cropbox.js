@@ -175,9 +175,10 @@
 				obj.state.mouseY = e.clientY;
             },
             imgMouseUp = function(e) {
+            	obj.state.dragable = false;
             	// e.preventDefault();
                 e.stopImmediatePropagation();
-                obj.state.dragable = false;
+                
             },
             zoomImage = function(e) {
                 e.originalEvent.wheelDelta > 0 || e.originalEvent.detail < 0 ? obj.ratio*=1.1 : obj.ratio*=0.9;
