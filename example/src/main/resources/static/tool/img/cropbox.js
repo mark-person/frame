@@ -102,14 +102,18 @@
                 }
             },
             setBackground = function() {
-                var w =  parseInt(obj.image.width)*obj.ratio;
-                var h =  parseInt(obj.image.height)*obj.ratio;
+        		
+        	
+                var w =  parseInt(obj.image.width) * obj.ratio;
+                var h =  parseInt(obj.image.height) * obj.ratio;
 
                 var pw = (el.width() - w) / 2;
                 var ph = (el.height() - h) / 2;
-
+                
+                //alert( options.imgSrc )
                 el.css({
-                    'background-image': 'url(' + obj.image.src + ')',
+                   // 'background-image': 'url(' + obj.image.src + ')',
+                	 'background-image': 'url(' +  obj.image.src + ')',
                     'background-size': w +'px ' + h + 'px',
                     'background-position': pw + 'px ' + ph + 'px',
                     'background-repeat': 'no-repeat'});
@@ -119,6 +123,8 @@
             	e.preventDefault();
             	e.stopImmediatePropagation();
             	if (e.targetTouches) {
+            		
+            		
             		if (e.targetTouches.length == 2) {
                 		var len = getDistance(event.targetTouches[0], event.targetTouches[1]);
                     	obj.state.downLen = len;
@@ -140,10 +146,11 @@
                 e.preventDefault();
                 if (e.targetTouches) {
                 	if (e.targetTouches.length == 2) {
+                		var len = getDistance(event.targetTouches[0], event.targetTouches[1]);
                 		cropper.ratio *= len / obj.state.downLen;
                   		obj.state.downLen = len;
                   		setBackground();
-                        alert(123)
+                  		
                         var bg = cropper.imageBox.css('background-position').split(' '); 
                         currentBgX = parseInt(bg[0]);
                         currentBgY = parseInt(bg[1]);
@@ -168,6 +175,7 @@
 				obj.state.mouseY = e.clientY;
             },
             imgMouseUp = function(e) {
+            	// e.preventDefault();
                 e.stopImmediatePropagation();
                 obj.state.dragable = false;
             },

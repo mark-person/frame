@@ -54,17 +54,25 @@ isNewImage = true;
 currentBgX = 0;
 currentBgY = 0;
 $(function() {
+	
+	var ttt = $(".imageBox")[0].outerHTML;
+	
     var options = {thumbBox: '.thumbBox',spinner: '.spinner',imgSrc: '/static/tool/img/5.jpg'}
     cropper = $('.imageBox').cropbox(options);
     $('#upload-file').on('change', function(){
         var reader = new FileReader();
         reader.onload = function(e) {
             isNewImage = true;
+            
+            $(".imageBox")[0].outerHTML = ttt;
+            
+            
             options.imgSrc = e.target.result;
+            
             cropper = $('.imageBox').cropbox(options);
         }
         reader.readAsDataURL(this.files[0]);
-        this.files = [];
+        // this.files = [];
     })
     $('#btnCrop').on('click', function(){
         var img = cropper.getDataURL();
