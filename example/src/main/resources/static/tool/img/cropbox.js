@@ -21,8 +21,7 @@
                 thumbBox : el.find(options.thumbBox),
                 spinner : el.find(options.spinner),
                 image : new Image(),
-                getDataURL: function ()
-                {
+                getDataURL: function () {
                     var width = this.thumbBox.width(),
                         height = this.thumbBox.height(),
                         canvas = document.createElement("canvas"),
@@ -56,7 +55,7 @@
                     
                     
                     
-                    /*
+                    /* 
                     context.beginPath();
                     // context.arc(x,y,radius,starAngle,endAngle,anticlockwise);
                     // 设置虚线4-2-4-2排列
@@ -70,11 +69,11 @@
                     
                     
                     
+                    
                     var imageData = canvas.toDataURL('image/png');
                     return imageData;
                 },
-                getBlob: function()
-                {
+                getBlob: function() {
                     var imageData = this.getDataURL();
                     var b64 = imageData.replace('data:image/png;base64,','');
                     var binary = atob(b64);
@@ -84,8 +83,7 @@
                     }
                     return  new Blob([new Uint8Array(array)], {type: 'image/png'});
                 },
-                zoomIn: function ()
-                {
+                zoomIn: function () {
                     this.ratio*=1.1;
                     setBackground();
                     
@@ -94,8 +92,7 @@
                     currentBgY = parseInt(bg[1]);
                     
                 },
-                zoomOut: function ()
-                {
+                zoomOut: function () {
                     this.ratio*=0.9;
                     setBackground();
                     
@@ -104,8 +101,7 @@
                     currentBgY = parseInt(bg[1]);
                 }
             },
-            setBackground = function()
-            {
+            setBackground = function() {
                 var w =  parseInt(obj.image.width)*obj.ratio;
                 var h =  parseInt(obj.image.height)*obj.ratio;
 
@@ -118,119 +114,64 @@
                     'background-position': pw + 'px ' + ph + 'px',
                     'background-repeat': 'no-repeat'});
             },
-            imgMouseDown = function(e)
-            {
-            	
-            	/*
-            	 var obj = document.getElementByIdx_x('id');
-obj.addEventListener('touchmove', function(event) {
-     // 如果这个元素的位置内只有一个手指的话
-    if (event.targetTouches.length == 1) {
-　　　　 event.preventDefault();// 阻止浏览器默认事件，重要 
-        var touch = event.targetTouches[0];
-        // 把元素放在手指所在的位置
-        obj.style.left = touch.pageX-50 + 'px';
-        obj.style.top = touch.pageY-50 + 'px';
-        }
-}, false);
-            	 */
-            	 obj.state.dragable = true;
-            	 e.preventDefault();
-            	 
-            	if (e.targetTouches.length == 2) {
-            		
-            		var len = getDistance(event.targetTouches[0], event.targetTouches[1]);
-                
-                	
-                	obj.state.downLen = len;
-            		
-            		
-                }
-            	
-            	
-                e.stopImmediatePropagation();
-                
-                if (event.targetTouches.length != 1) return;
-                
-                e.preventDefault();
-                var touch = event.targetTouches[0];
-                
-                
-
-               
-                
-                if (touch) {
-                	obj.state.mouseX = touch.pageX;
-                    obj.state.mouseY = touch.pageY;
-                }
-                else {
-                	obj.state.mouseX = e.clientX;
-                    obj.state.mouseY = e.clientY;
-                }
-                
-                
-            },
-            imgMouseMove = function(e)
-            {
-                e.stopImmediatePropagation();
-                e.preventDefault();
-
-                if (obj.state.dragable)
-                {
-                	  if (event.targetTouches.length == 2) {
-                		   // zoomImage(e)
-                		  
+            imgMouseDown = function(e) {
+            	obj.state.dragable = true;
+            	e.preventDefault();
+            	e.stopImmediatePropagation();
+            	if (e.targetTouches) {
+            		if (e.targetTouches.length == 2) {
                 		var len = getDistance(event.targetTouches[0], event.targetTouches[1]);
-                      	// alert("2-Move:" + len);
-                  		
-                  		// alert(len/obj.state.downLen);
-                  		
-                  		cropper.ratio *= len / obj.state.downLen;
+                    	obj.state.downLen = len;
+                    }
+            		else if (e.targetTouches.length == 1) {
+            			var touch = event.targetTouches[0];
+                		obj.state.mouseX = touch.pageX;
+                        obj.state.mouseY = touch.pageY;
+            		}
+            	}
+            	else {
+            		obj.state.mouseX = e.clientX;
+                    obj.state.mouseY = e.clientY;
+            	}
+            },
+            imgMouseMove = function(e) {
+            	if (!obj.state.dragable) return;
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                if (e.targetTouches) {
+                	if (e.targetTouches.length == 2) {
+                		cropper.ratio *= len / obj.state.downLen;
                   		obj.state.downLen = len;
-                    	
                   		setBackground();
-                        
+                        alert(123)
                         var bg = cropper.imageBox.css('background-position').split(' '); 
                         currentBgX = parseInt(bg[0]);
                         currentBgY = parseInt(bg[1]);
-                        
                         return;
-                      }
-                	  
-                	
-                	if (event.targetTouches.length != 1) return;
-                	 e.preventDefault();
-                	 var touch = event.targetTouches[0];
-                	 if (touch) {
-                		 e.clientX = touch.pageX;
-                		 e.clientY = touch.pageY;
-                	 }
-                	 
-                	
-                    var x = e.clientX - obj.state.mouseX;
-                    var y = e.clientY - obj.state.mouseY;
-
-                    var bg = el.css('background-position').split(' ');
-                    var bgX = x + parseInt(bg[0]);
-                    var bgY = y + parseInt(bg[1]);
-
-                    el.css('background-position', bgX +'px ' + bgY + 'px');
-
-                    obj.state.mouseX = e.clientX;
-                    obj.state.mouseY = e.clientY;
-                    
-                  
-                    
+                	}
+                	else if (event.targetTouches.length == 1) {
+                		var touch = event.targetTouches[0];
+                		e.clientX = touch.pageX;
+                		e.clientY = touch.pageY;
+                	}
                 }
+                
+				var x = e.clientX - obj.state.mouseX;
+				var y = e.clientY - obj.state.mouseY;
+				
+				var bg = el.css('background-position').split(' ');
+				var bgX = x + parseInt(bg[0]); var bgY = y + parseInt(bg[1]);
+				
+				el.css('background-position', bgX +'px ' + bgY + 'px');
+				
+				obj.state.mouseX = e.clientX;
+				obj.state.mouseY = e.clientY;
             },
-            imgMouseUp = function(e)
-            {
-            	
+            imgMouseUp = function(e) {
                 e.stopImmediatePropagation();
                 obj.state.dragable = false;
             },
-            zoomImage = function(e)
-            {
+            zoomImage = function(e) {
                 e.originalEvent.wheelDelta > 0 || e.originalEvent.detail < 0 ? obj.ratio*=1.1 : obj.ratio*=0.9;
                 setBackground();
                 
@@ -239,8 +180,8 @@ obj.addEventListener('touchmove', function(event) {
                 currentBgY = parseInt(bg[1]);
             }
 
-        obj.spinner.show();
-        obj.image.onload = function() {
+            obj.spinner.show();
+            obj.image.onload = function() {
         	
             
         	

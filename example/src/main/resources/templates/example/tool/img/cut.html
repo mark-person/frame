@@ -95,7 +95,7 @@ $(function() {
         // 设置虚线4-2-4-2排列
         context.setLineDash([4,2]);
         context.arc(cropper.image.width / 2 - bgX/ cropper.ratio,  cropper.image.height / 2 - bgY/ cropper.ratio, 100 / cropper.ratio, 0, Math.PI*2, true);
-        context.strokeStyle = "#ff0000";//线条的颜色
+        context.strokeStyle = "#ffffff";//线条的颜色
         context.stroke();
         context.closePath();
         
@@ -103,7 +103,7 @@ $(function() {
         // canvas的toDataURL是只能压缩jpg的，当用户上传的图片是png的话，就需要转成jpg，也就是统一用canvas.toDataURL('image/jpeg', 0.1) ， 
         // 类型统一设成jpeg，而压缩比就自己控制了
         //cropper.image.src = canvas.toDataURL('image/png');
-        cropper.image.src = canvas.toDataURL('image/jpeg', 0.3);
+        cropper.image.src = canvas.toDataURL('image/jpeg', 0.8);
         
         
         
