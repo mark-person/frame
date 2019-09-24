@@ -2,16 +2,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 <link th:replace="base/base-fragment::common"/>
 
 
 <title>CUT_DEMO</title>
 
-    
 <script type="text/javascript" th:src="@{/static/tool/jquery.min-3.3.1.js}"></script>
-<script type="text/javascript" th:src="@{/static/tool/img/cropbox.js}"></script>
+<script type="text/javascript" th:src="@{/static/tool/img/cropbox.js?v=1}"></script>
 <script type="text/javascript" th:src="@{/static/tool/img/html2canvas.min.js}"></script>
 <link rel="stylesheet" th:href="@{/static/tool/img/cut.css}">
 
@@ -41,32 +39,6 @@
 
 <script type="text/javascript">
 
-/*
-function cropImage(targetCanvas, x, y, width, height) {
-    var targetctx = targetCanvas.getContext('2d');
-    var targetctxImageData = targetctx.getImageData(x, y, width, height); // sx, sy, sWidth, sHeight
-
-    var c = document.createElement('canvas');
-    var ctx = c.getContext('2d');
-
-    c.width = width;
-    c.height = height;
-
-    ctx.rect(0, 0, width, height);
-    ctx.fillStyle = 'white';
-    ctx.fill();
-    ctx.putImageData(targetctxImageData, 0, 0); // imageData, dx, dy
-
-    return c;
-    //document.getElementById('source2').src = c.toDataURL('image/jpeg', 0.92);
-    //document.getElementById('source2').style.display = 'initial';
-}
-*/
-
-
-
-
-
 function test() {
     //var blob = cropper.getBlob();
     //document.getElementById("btn").href = window.URL.createObjectURL(blob);
@@ -82,12 +54,7 @@ isNewImage = true;
 currentBgX = 0;
 currentBgY = 0;
 $(function() {
-    var options =
-    {
-        thumbBox: '.thumbBox',
-        spinner: '.spinner',
-        imgSrc: 'http://localhost:8000/static/tool/img/5.jpg'
-    }
+    var options = {thumbBox: '.thumbBox',spinner: '.spinner',imgSrc: '/static/tool/img/5.jpg'}
     cropper = $('.imageBox').cropbox(options);
     $('#upload-file').on('change', function(){
         var reader = new FileReader();
@@ -101,15 +68,7 @@ $(function() {
     })
     $('#btnCrop').on('click', function(){
         var img = cropper.getDataURL();
-        /*
-        $('.cropped').html('');
-        $('.cropped').append('<img src="'+img+'" align="absmiddle" style="width:64px;margin-top:4px;border-radius:64px;box-shadow:0px 0px 12px #7E7E7E;" ><p>64px*64px</p>');
-        $('.cropped').append('<img src="'+img+'" align="absmiddle" style="width:128px;margin-top:4px;border-radius:128px;box-shadow:0px 0px 12px #7E7E7E;"><p>128px*128px</p>');
-        $('.cropped').append('<img src="'+img+'" align="absmiddle" style="width:180px;margin-top:4px;border-radius:180px;box-shadow:0px 0px 12px #7E7E7E;"><p>180px*180px</p>');
         $("#testImg").attr("src", img);
-        */
-        $("#testImg").attr("src", img);
-        
         
         
         
@@ -130,8 +89,7 @@ $(function() {
        currentBgX = parseInt(bg[0]);
        currentBgY = parseInt(bg[1]);
         
-       // context.translate(bgX, bgY);
-        
+    
         
         // context.arc(x,y,radius,starAngle,endAngle,anticlockwise);
         // 设置虚线4-2-4-2排列
@@ -150,6 +108,7 @@ $(function() {
         
         
     })
+    
     $('#btnZoomIn').on('click', function(){
         cropper.zoomIn();
     })

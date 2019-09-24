@@ -106,7 +106,7 @@ public class TimingGather {
         
         // OutputImpl outputImpl = ApplicationUtils.context.getBean(OutputImpl.class);
         
-        outputImpl.insertGather(new JdbcTemplate(ds), gatherTime, isOver, maxProcessingTime, concurrentN, gatherMap, lastUpdate);
+        outputImpl.insertGather(gatherTime, isOver, maxProcessingTime, concurrentN, gatherMap, lastUpdate);
 	}
         
 }

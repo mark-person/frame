@@ -66,16 +66,16 @@ public class OutputImpl extends MyDaoSupport {
 		}
 	}
 	
-	public void insertGather(JdbcTemplate jdbcTemplate, Date gatherTime, int isOver, long maxProcessingTime, int concurrentN, Map<String, Object> gatherMap,
+	public void insertGather(Date gatherTime, int isOver, long maxProcessingTime, int concurrentN, Map<String, Object> gatherMap,
 			Map<String, Object> lastUpdate) {
 		String gatherInfoJson = ObjectMapperCustomer.toJson(gatherMap);
         String gatherSql = "insert into monitor_gather(service_id, gather_time, is_over, max_processing_time, concurrent_num, gather_info)" +
         	" values(?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(gatherSql, ApplicationUtils.getServiceId(), gatherTime, isOver, maxProcessingTime, concurrentN, gatherInfoJson);
+        getJdbcTemplate().update(gatherSql, ApplicationUtils.getServiceId(), gatherTime, isOver, maxProcessingTime, concurrentN, gatherInfoJson);
         
         String lastUpdateJson = ObjectMapperCustomer.toJson(lastUpdate);
         String updateServiceSql = "update monitor_service set service_last_info = ? where service_id = ?";
-        jdbcTemplate.update(updateServiceSql, lastUpdateJson, ApplicationUtils.getServiceId());
+        getJdbcTemplate().update(updateServiceSql, lastUpdateJson, ApplicationUtils.getServiceId());
 	}
 	
 	// 返回accessId

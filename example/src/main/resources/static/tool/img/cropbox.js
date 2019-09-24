@@ -120,18 +120,91 @@
             },
             imgMouseDown = function(e)
             {
+            	
+            	/*
+            	 var obj = document.getElementByIdx_x('id');
+obj.addEventListener('touchmove', function(event) {
+     // 如果这个元素的位置内只有一个手指的话
+    if (event.targetTouches.length == 1) {
+　　　　 event.preventDefault();// 阻止浏览器默认事件，重要 
+        var touch = event.targetTouches[0];
+        // 把元素放在手指所在的位置
+        obj.style.left = touch.pageX-50 + 'px';
+        obj.style.top = touch.pageY-50 + 'px';
+        }
+}, false);
+            	 */
+            	
+            	if (e.targetTouches.length == 2) {
+            		
+            		var len = getDistance(event.targetTouches[0], event.targetTouches[1]);
+                
+                	
+                	obj.state.downLen = len;
+            		
+            		
+                }
+            	
+            	
                 e.stopImmediatePropagation();
+                
+                if (event.targetTouches.length != 1) return;
+                
+                e.preventDefault();
+                var touch = event.targetTouches[0];
+                
+                
 
                 obj.state.dragable = true;
-                obj.state.mouseX = e.clientX;
-                obj.state.mouseY = e.clientY;
+                
+                if (touch) {
+                	obj.state.mouseX = touch.pageX;
+                    obj.state.mouseY = touch.pageY;
+                }
+                else {
+                	obj.state.mouseX = e.clientX;
+                    obj.state.mouseY = e.clientY;
+                }
+                
+                
             },
             imgMouseMove = function(e)
             {
                 e.stopImmediatePropagation();
+                e.preventDefault();
 
                 if (obj.state.dragable)
                 {
+                	  if (event.targetTouches.length == 2) {
+                		   // zoomImage(e)
+                		  
+                		var len = getDistance(event.targetTouches[0], event.targetTouches[1]);
+                      	// alert("2-Move:" + len);
+                  		
+                  		// alert(len/obj.state.downLen);
+                  		
+                  		cropper.ratio *= len / obj.state.downLen;
+                  		obj.state.downLen = len;
+                    	
+                  		setBackground();
+                        
+                        //var bg = cropper.imageBox.css('background-position').split(' '); 
+                        //.currentBgX = parseInt(bg[0]);
+                        // currentBgY = parseInt(bg[1]);
+                        
+                        return;
+                      }
+                	  
+                	
+                	if (event.targetTouches.length != 1) return;
+                	 e.preventDefault();
+                	 var touch = event.targetTouches[0];
+                	 if (touch) {
+                		 e.clientX = touch.pageX;
+                		 e.clientY = touch.pageY;
+                	 }
+                	 
+                	
                     var x = e.clientX - obj.state.mouseX;
                     var y = e.clientY - obj.state.mouseY;
 
@@ -145,11 +218,13 @@
                     obj.state.mouseX = e.clientX;
                     obj.state.mouseY = e.clientY;
                     
+                  
                     
                 }
             },
             imgMouseUp = function(e)
             {
+            	
                 e.stopImmediatePropagation();
                 obj.state.dragable = false;
             },
@@ -184,6 +259,11 @@
             el.bind('mousedown', imgMouseDown);
             el.bind('mousemove', imgMouseMove);
             $(window).bind('mouseup', imgMouseUp);
+            
+            el.bind('touchstart', imgMouseDown);
+            el.bind('touchmove', imgMouseMove);
+            $(window).bind('touchend', imgMouseUp);
+          
             el.bind('mousewheel DOMMouseScroll', zoomImage);
         };
         
@@ -202,3 +282,11 @@
         return new cropbox(options, this);
     };
 }));
+
+
+
+function getDistance(p1, p2) {
+    var x = p2.pageX - p1.pageX,
+    y = p2.pageY - p1.pageY;
+    return Math.sqrt((x * x) + (y * y));
+};
