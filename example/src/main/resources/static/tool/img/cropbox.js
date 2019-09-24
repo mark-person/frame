@@ -134,7 +134,9 @@ obj.addEventListener('touchmove', function(event) {
         }
 }, false);
             	 */
-            	
+            	 obj.state.dragable = true;
+            	 e.preventDefault();
+            	 
             	if (e.targetTouches.length == 2) {
             		
             		var len = getDistance(event.targetTouches[0], event.targetTouches[1]);
@@ -155,7 +157,7 @@ obj.addEventListener('touchmove', function(event) {
                 
                 
 
-                obj.state.dragable = true;
+               
                 
                 if (touch) {
                 	obj.state.mouseX = touch.pageX;
@@ -188,9 +190,9 @@ obj.addEventListener('touchmove', function(event) {
                     	
                   		setBackground();
                         
-                        //var bg = cropper.imageBox.css('background-position').split(' '); 
-                        //.currentBgX = parseInt(bg[0]);
-                        // currentBgY = parseInt(bg[1]);
+                        var bg = cropper.imageBox.css('background-position').split(' '); 
+                        currentBgX = parseInt(bg[0]);
+                        currentBgY = parseInt(bg[1]);
                         
                         return;
                       }
@@ -209,7 +211,6 @@ obj.addEventListener('touchmove', function(event) {
                     var y = e.clientY - obj.state.mouseY;
 
                     var bg = el.css('background-position').split(' ');
-
                     var bgX = x + parseInt(bg[0]);
                     var bgY = y + parseInt(bg[1]);
 
@@ -270,9 +271,6 @@ obj.addEventListener('touchmove', function(event) {
         obj.image.src = options.imgSrc;
         
         
-        
-        
-		
         el.on('remove', function(){$(window).unbind('mouseup', imgMouseUp)});
 
         return obj;
