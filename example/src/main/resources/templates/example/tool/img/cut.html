@@ -136,11 +136,17 @@ $(function() {
 		// canvas的toDataURL是只能压缩jpg的，当用户上传的图片是png的话，就需要转成jpg，也就是统一用canvas.toDataURL('image/jpeg', 0.1) ， 
 		// 类型统一设成jpeg，而压缩比就自己控制了
 		//  cropper.image.src = canvas.toDataURL('image/png');
-		cropper.image.src = canvas.toDataURL('image/jpeg', 0.1);
+		//cropper.image.onload = function() {
+            // cropper.obj.setBackground();
+           // cropper.imageBox.css('background-position', currentBgX  + 'px ' +  currentBgY + "px");
+        //}
+		
+		//'background-image': 
+        cropper.image.src = canvas.toDataURL('image/jpeg', 0.9);
+		cropper.imageBox.css('background-image', 'url(' + cropper.image.src + ')');
+		
        
-		cropper.image.onload = function() {
-			// cropper.obj.setBackground();
-		}
+		
        
 	})
     

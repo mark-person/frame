@@ -115,8 +115,8 @@
                 var pw = (el.width() - w) / 2;
                 var ph = (el.height() - h) / 2;
                 
-                var pw = parseInt(bg[0]) - (w - intW) / 2;
-                var ph = parseInt(bg[1]) - (h - intH) / 2;
+               // var pw = parseInt(bg[0]) - (w - intW) / 2;
+                //var ph = parseInt(bg[1]) - (h - intH) / 2;
                 
                 	
                 
