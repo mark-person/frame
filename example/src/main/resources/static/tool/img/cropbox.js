@@ -86,7 +86,7 @@
                     return  new Blob([new Uint8Array(array)], {type: 'image/png'});
                 },
                 zoomIn: function () {
-                    this.ratio*=1.1;
+                    this.ratio*=1.5;
                     setBackground();
                     
                     var bg = cropper.imageBox.css('background-position').split(' '); 
@@ -104,19 +104,24 @@
                 }
             },
             setBackground = function() {
-        		
+        		var intW = parseInt(obj.image.width);
+        		var intH = parseInt(obj.image.height);
         	
                 var w =  parseInt(obj.image.width) * obj.ratio;
                 var h =  parseInt(obj.image.height) * obj.ratio;
-
+                
+                var bg = el.css('background-position').split(' ');
+           
                 var pw = (el.width() - w) / 2;
                 var ph = (el.height() - h) / 2;
                 
+                var pw = parseInt(bg[0]) - (w - intW) / 2;
+                var ph = parseInt(bg[1]) - (h - intH) / 2;
                 
-                //alert( options.imgSrc )
+                	
+                
                 el.css({
-                   // 'background-image': 'url(' + obj.image.src + ')',
-                	 'background-image': 'url(' +  obj.image.src + ')',
+                	'background-image': 'url(' +  obj.image.src + ')',
                     'background-size': w +'px ' + h + 'px',
                     'background-position': pw + 'px ' + ph + 'px',
                     'background-repeat': 'no-repeat'});
@@ -203,13 +208,11 @@
             obj.spinner.hide();
             setBackground();
             
-            //if (isNewImage) {
-           // 	alert(1)
-        		var bg = cropper.imageBox.css('background-position').split(' ');
-        		currentBgX = parseInt(bg[0]);
-        		currentBgY = parseInt(bg[1]);
-        	//	isNewImage = false;
-        	//}
+          
+			var bg = cropper.imageBox.css('background-position').split(' ');
+			currentBgX = parseInt(bg[0]);
+			currentBgY = parseInt(bg[1]);
+        	
             
             
         	cropper.imageBox.css('background-position', currentBgX +'px ' + currentBgY + 'px');

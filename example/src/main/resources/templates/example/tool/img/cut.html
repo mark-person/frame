@@ -9,7 +9,7 @@
 <title>CUT_DEMO</title>
 
 <script type="text/javascript" th:src="@{/static/tool/jquery.min-3.3.1.js}"></script>
-<script type="text/javascript" th:src="@{/static/tool/img/cropbox.js?v=1}"></script>
+<script type="text/javascript" th:src="@{/static/tool/img/cropbox.js?v=16}"></script>
 <script type="text/javascript" th:src="@{/static/tool/img/html2canvas.min.js}"></script>
 <link rel="stylesheet" th:href="@{/static/tool/img/cut.css}">
 
@@ -20,7 +20,14 @@
   <div class="imageBox" id="container">
     <div class="thumbBox"style="display: none"></div>
     <div class="spinner" style="display: none">Loading...</div>
-    <img id="cropCircleImg" src="" align="absmiddle" style="width:200px;margin-top:4px;border-radius:200px;box-shadow:0px 0px 12px #7E7E7E;">
+   
+    <img id="cropCircle">
+   
+    
+    <img id="cropCircleImg" align="absmiddle" style="width:200px;margin-top:4px;border-radius:200px;box-shadow:0px 0px 12px #7E7E7E;display:none">
+    
+    
+    
   </div>
   <div class="action"> 
     <div class="new-contentarea tc"> 
@@ -42,33 +49,14 @@
 
 
 function autoResize() {
+	var w =  cropper.imageBox.width();
+    var h = cropper.imageBox.height();
 	
-	var obj = cropper;
-	var el = cropper.imageBox;
-	
-	obj.ratio = 1;
-	
-	// cropper.image.css('background-size', '100px ' + '100px');
-	var w =  obj.imageBox.width();
-    var h = obj.imageBox.height();
-
-    var pw = (el.width() - w) / 2;
-    var ph = (el.height() - h) / 2;
-    
-    pw = 0;
-    ph = 0;
-    
-    //w = w * 2;
-    // h = h * 2;
-    
-    //alert( options.imgSrc )
-    el.css({
-       // 'background-image': 'url(' + obj.image.src + ')',
-    	 'background-image': 'url(' +  obj.image.src + ')',
+    cropper.imageBox.css({
+    	'background-image': 'url(' +  cropper.image.src + ')',
         'background-size': w +'px ' + h + 'px',
-        'background-position': pw + 'px ' + ph + 'px',
+        'background-position': '0 0',
         'background-repeat': 'no-repeat'});
-	
 }
 
 function test() {
@@ -86,19 +74,22 @@ currentBgX = 0;
 currentBgY = 0;
 $(function() {
 	
-	var ttt = $(".imageBox")[0].outerHTML;
 	
+	
+	var ttt = $(".imageBox")[0].outerHTML;
     var options = {thumbBox: '.thumbBox',spinner: '.spinner',imgSrc: '/static/tool/img/5.jpg'}
     cropper = $('.imageBox').cropbox(options);
     
     
-    
+ 	// circle
+    $("#cropCircle").attr("src", getCropCircle());
     
     $('#upload-file').on('change', function(){
         var reader = new FileReader();
         reader.onload = function(e) {
             
             $(".imageBox")[0].outerHTML = ttt;
+            $("#cropCircle").attr("src", getCropCircle());
             
             
             options.imgSrc = e.target.result;
@@ -109,9 +100,12 @@ $(function() {
         // this.files = [];
     })
     $('#btnCrop').on('click', function(){
-        var img = cropper.getDataURL();
-        $("#cropCircleImg").attr("src", img);
-        
+    	
+    	$("#cropCircle").hide();
+    	$("#cropCircleImg").show();
+    	
+		var img = cropper.getDataURL();
+		$("#cropCircleImg").attr("src", img);
         
         
         var canvas = document.createElement("canvas");
@@ -121,46 +115,34 @@ $(function() {
         context.drawImage(cropper.image, 0, 0, cropper.image.width, cropper.image.height, 0, 0, cropper.image.width, cropper.image.height);
         
         context.beginPath();
-        
-        
-        // 缩小时移动有bug，画图
        
-       var bg = cropper.imageBox.css('background-position').split(' ');
-       var bgX = -currentBgX + parseInt(bg[0]);
-       var bgY = -currentBgY + parseInt(bg[1]);  
+		var bg = cropper.imageBox.css('background-position').split(' ');
+		var bgX = -currentBgX + parseInt(bg[0]);
+		var bgY = -currentBgY + parseInt(bg[1]);  
        
-       currentBgX = parseInt(bg[0]);
-       currentBgY = parseInt(bg[1]);
-       
-       
+		currentBgX = parseInt(bg[0]);
+		currentBgY = parseInt(bg[1]);
         
-    
-        
+		
         // context.arc(x,y,radius,starAngle,endAngle,anticlockwise);
         // 设置虚线4-2-4-2排列
         context.setLineDash([4,2]);
-        context.arc(cropper.image.width / 2 - bgX/ cropper.ratio,  cropper.image.height / 2 - bgY/ cropper.ratio, 100 / cropper.ratio, 0, Math.PI*2, true);
+        context.arc(cropper.image.width / 2 - bgX / cropper.ratio,  cropper.image.height / 2 - bgY / cropper.ratio, 100 / cropper.ratio, 0, Math.PI*2, true);
         context.strokeStyle = "#ffffff";//线条的颜色
         context.stroke();
         context.closePath();
         
         
-        // canvas的toDataURL是只能压缩jpg的，当用户上传的图片是png的话，就需要转成jpg，也就是统一用canvas.toDataURL('image/jpeg', 0.1) ， 
-        // 类型统一设成jpeg，而压缩比就自己控制了
-       //  cropper.image.src = canvas.toDataURL('image/png');
-       cropper.image.src = canvas.toDataURL('image/jpeg', 0.1);
+		// canvas的toDataURL是只能压缩jpg的，当用户上传的图片是png的话，就需要转成jpg，也就是统一用canvas.toDataURL('image/jpeg', 0.1) ， 
+		// 类型统一设成jpeg，而压缩比就自己控制了
+		//  cropper.image.src = canvas.toDataURL('image/png');
+		cropper.image.src = canvas.toDataURL('image/jpeg', 0.1);
        
-       cropper.image.onload = function() {
-    	   cropper.obj.setBackground();
-       }
+		cropper.image.onload = function() {
+			// cropper.obj.setBackground();
+		}
        
-       
-        
-        
-        
-        
-        
-    })
+	})
     
     $('#btnZoomIn').on('click', function(){
         cropper.zoomIn();
@@ -169,6 +151,44 @@ $(function() {
         cropper.zoomOut();
     })
 });
+
+
+
+function getCropCircle() {
+	
+	var w = $("#container").width();
+	var h = $("#container").height();
+	
+	
+	var canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    var context = canvas.getContext("2d");
+    // context.drawImage(cropper.image, 0, 0, cropper.image.width, cropper.image.height, 0, 0, cropper.image.width, cropper.image.height);
+    //context.fillRect(10, 10, 50, 50);
+    
+    
+    context.beginPath();
+    
+	
+    // context.arc(x,y,radius,starAngle,endAngle,anticlockwise);
+    // 设置虚线4-2-4-2排列
+    context.setLineDash([4,2]);
+    
+    
+    
+    context.arc(w/2, h/2, 100, 0, Math.PI*2, true);
+    context.strokeStyle = "#ff0000";
+    context.stroke();
+    context.closePath();
+    
+    
+    
+    // $("#container")[0].appendChild(canvas);
+    var imageData = canvas.toDataURL('image/png');
+    return imageData;
+    
+}
 </script>
 
 </body>
