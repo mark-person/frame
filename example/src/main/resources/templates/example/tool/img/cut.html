@@ -20,24 +20,56 @@
   <div class="imageBox" id="container">
     <div class="thumbBox"style="display: none"></div>
     <div class="spinner" style="display: none">Loading...</div>
-    <img id="testImg" src="" align="absmiddle" style="width:200px;margin-top:4px;border-radius:200px;box-shadow:0px 0px 12px #7E7E7E;">
+    <img id="cropCircleImg" src="" align="absmiddle" style="width:200px;margin-top:4px;border-radius:200px;box-shadow:0px 0px 12px #7E7E7E;">
   </div>
   <div class="action"> 
     <div class="new-contentarea tc"> 
         <a href="javascript:void(0)" class="upload-img">
-            <label for="upload-file">批量添加</label>
+            <label for="upload-file">添加</label>
         </a>
         <input type="file" class="" name="upload-file" id="upload-file" />
     </div>
     <input type="button" id="btnCrop"  class="Btnsty_peyton" value="CUT">
     <input type="button" id="btnZoomIn" class="Btnsty_peyton" value="+"  >
-    <input type="button" id="btnZoomOut" class="Btnsty_peyton" value="-"  style="">
+    <input type="button" id="btnZoomOut" class="Btnsty_peyton" value="-">
+    <input type="button" onclick="autoResize()" class="Btnsty_peyton" value="a">
   </div>
   
    
 </div>
 
 <script type="text/javascript">
+
+
+function autoResize() {
+	
+	var obj = cropper;
+	var el = cropper.imageBox;
+	
+	obj.ratio = 1;
+	
+	// cropper.image.css('background-size', '100px ' + '100px');
+	var w =  obj.imageBox.width();
+    var h = obj.imageBox.height();
+
+    var pw = (el.width() - w) / 2;
+    var ph = (el.height() - h) / 2;
+    
+    pw = 0;
+    ph = 0;
+    
+    //w = w * 2;
+    // h = h * 2;
+    
+    //alert( options.imgSrc )
+    el.css({
+       // 'background-image': 'url(' + obj.image.src + ')',
+    	 'background-image': 'url(' +  obj.image.src + ')',
+        'background-size': w +'px ' + h + 'px',
+        'background-position': pw + 'px ' + ph + 'px',
+        'background-repeat': 'no-repeat'});
+	
+}
 
 function test() {
     //var blob = cropper.getBlob();
@@ -50,7 +82,6 @@ function test() {
 
 var cropper;
 
-isNewImage = true;
 currentBgX = 0;
 currentBgY = 0;
 $(function() {
@@ -59,10 +90,13 @@ $(function() {
 	
     var options = {thumbBox: '.thumbBox',spinner: '.spinner',imgSrc: '/static/tool/img/5.jpg'}
     cropper = $('.imageBox').cropbox(options);
+    
+    
+    
+    
     $('#upload-file').on('change', function(){
         var reader = new FileReader();
         reader.onload = function(e) {
-            isNewImage = true;
             
             $(".imageBox")[0].outerHTML = ttt;
             
@@ -76,7 +110,7 @@ $(function() {
     })
     $('#btnCrop').on('click', function(){
         var img = cropper.getDataURL();
-        $("#testImg").attr("src", img);
+        $("#cropCircleImg").attr("src", img);
         
         
         
@@ -90,12 +124,14 @@ $(function() {
         
         
         // 缩小时移动有bug，画图
+       
        var bg = cropper.imageBox.css('background-position').split(' ');
        var bgX = -currentBgX + parseInt(bg[0]);
        var bgY = -currentBgY + parseInt(bg[1]);  
-      
+       
        currentBgX = parseInt(bg[0]);
        currentBgY = parseInt(bg[1]);
+       
        
         
     
@@ -111,8 +147,15 @@ $(function() {
         
         // canvas的toDataURL是只能压缩jpg的，当用户上传的图片是png的话，就需要转成jpg，也就是统一用canvas.toDataURL('image/jpeg', 0.1) ， 
         // 类型统一设成jpeg，而压缩比就自己控制了
-        //cropper.image.src = canvas.toDataURL('image/png');
-        cropper.image.src = canvas.toDataURL('image/jpeg', 0.8);
+       //  cropper.image.src = canvas.toDataURL('image/png');
+       cropper.image.src = canvas.toDataURL('image/jpeg', 0.1);
+       
+       cropper.image.onload = function() {
+    	   cropper.obj.setBackground();
+       }
+       
+       
+        
         
         
         

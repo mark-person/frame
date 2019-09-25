@@ -70,7 +70,9 @@
                     
                     
                     
-                    var imageData = canvas.toDataURL('image/png');
+                    //var imageData = canvas.toDataURL('image/png');
+                   var imageData = canvas.toDataURL('image/jpeg');
+                    
                     return imageData;
                 },
                 getBlob: function() {
@@ -109,6 +111,7 @@
 
                 var pw = (el.width() - w) / 2;
                 var ph = (el.height() - h) / 2;
+                
                 
                 //alert( options.imgSrc )
                 el.css({
@@ -169,7 +172,10 @@
 				var bg = el.css('background-position').split(' ');
 				var bgX = x + parseInt(bg[0]); var bgY = y + parseInt(bg[1]);
 				
+				
 				el.css('background-position', bgX +'px ' + bgY + 'px');
+				
+				
 				
 				obj.state.mouseX = e.clientX;
 				obj.state.mouseY = e.clientY;
@@ -197,12 +203,15 @@
             obj.spinner.hide();
             setBackground();
             
-            if (isNewImage) {
+            //if (isNewImage) {
+           // 	alert(1)
         		var bg = cropper.imageBox.css('background-position').split(' ');
         		currentBgX = parseInt(bg[0]);
         		currentBgY = parseInt(bg[1]);
-        		isNewImage = false;
-        	}
+        	//	isNewImage = false;
+        	//}
+            
+            
         	cropper.imageBox.css('background-position', currentBgX +'px ' + currentBgY + 'px');
         	
             
