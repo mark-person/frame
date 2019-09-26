@@ -63,9 +63,9 @@
                     context.arc(100, 100, 20, 0, Math.PI*2, true);
                     context.stroke();
                     context.closePath();
-                    //context.fillStyle = "rgba(255,0,0,0.25)";
+                    //
                     */
-                    
+                    // context.fillStyle = "rgba(255,0,0,0.25)";
                     
                     
                     

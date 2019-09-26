@@ -18,7 +18,7 @@
 <body>
 <div class="container">
   <div class="imageBox" id="container">
-    <div class="thumbBox"style="display: none"></div>
+    <div class="thumbBox"style="display: none;" ></div>
     <div class="spinner" style="display: none">Loading...</div>
    
  	<div style="position:relative;width:0;height:0;">
@@ -73,13 +73,27 @@ function circleColorChange(obj) {
 
 
 function autoResize() {
-	var w =  cropper.imageBox.width();
+	var w = cropper.imageBox.width();
     var h = cropper.imageBox.height();
+    
+    var x = 0;
+    var y = 0;
+    
+    var imgW = cropper.image.width;
+    var imgH = cropper.image.height;
+    if (imgW > imgH) {
+    	h = w * imgH / imgW;
+    	y = (cropper.imageBox.height() - h) / 2;
+    }
+    else if(imgW < imgH) {
+    	w = h *  imgW /imgH;
+    	x = (cropper.imageBox.width() - w) / 2;
+    }
 	
     cropper.imageBox.css({
     	'background-image': 'url(' +  cropper.image.src + ')',
-        'background-size': w +'px ' + h + 'px',
-        'background-position': '0 0',
+        'background-size': w + 'px ' + h + 'px',
+        'background-position': x + 'px ' + y + 'px',
         'background-repeat': 'no-repeat'});
 }
 
@@ -136,8 +150,13 @@ $(function() {
         canvas.width = cropper.image.width;
         canvas.height = cropper.image.height;
         var context = canvas.getContext("2d");
+        
+        
+        // context.createPattern(,"no-repeat");
+        
         context.drawImage(cropper.image, 0, 0, cropper.image.width, cropper.image.height, 0, 0, cropper.image.width, cropper.image.height);
         
+       
         context.lineWidth = 3;
         context.beginPath();
        
