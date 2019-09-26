@@ -17,8 +17,6 @@
 </head>
 <body>
 <div class="container">
-
-
   <div class="imageBox" id="container">
     <div class="thumbBox"style="display: none;" ></div>
     <div class="spinner" style="display: none">Loading...</div>
@@ -33,11 +31,12 @@
     
     <img id="cropCircleImg" align="absmiddle" style="width:200px;margin-top:4px;border-radius:200px;box-shadow:0px 0px 12px #7E7E7E;display:none">
     
+    
+    
+    
+	
   </div>
-  
-  
-  
-  <div class="action" id="actionDiv"> 
+  <div class="action"> 
     <div class="new-contentarea tc"> 
         <a href="javascript:void(0)" class="upload-img">
             <label for="upload-file">add</label>
@@ -51,13 +50,11 @@
     -->
     <input type="button" onclick="autoResize()" class="Btnsty_peyton" value="a">
     
-    <select id="circleColor" v-model="circleColor" @change="circleColorChange()" class="v-select">
+    <select id="circleColor" onchange="circleColorChange(this)" class="v-select">
 	    <option value="red">red</option>
 	    <option value="yellow">yellow</option>
 	    <option value="white">white</option>
 	    <option value="black">black</option>
-	    <option value="blue">blue</option>
-	    <option value="green">green</option>
     </select>
     
   </div>
@@ -70,25 +67,9 @@
 
 <script type="text/javascript">
 
-var actionDiv = new Vue({
-	el:'#actionDiv',
-	data: {circleColor:'blue'},
-	methods:{
-		circleColorChange:function() {
-			$("#cropCircle").attr("src", getCropCircle(obj.value));
-		}
-	}
-})
-
-
-
-
-
-
-
-
-
-
+function circleColorChange(obj) {
+	$("#cropCircle").attr("src", getCropCircle(obj.value));
+}
 
 
 function autoResize() {
