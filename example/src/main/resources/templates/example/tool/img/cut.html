@@ -6,7 +6,7 @@
 <link th:replace="base/base-fragment::common"/>
 
 
-<title>CUT_DEMO</title>
+<title>MEMORY_DEMO</title>
 
 <script type="text/javascript" th:src="@{/static/tool/jquery.min-3.3.1.js}"></script>
 <script type="text/javascript" th:src="@{/static/tool/img/cropbox.js?v=16}"></script>
@@ -15,10 +15,10 @@
 
 
 </head>
-<body >
+<body>
 <div class="container">
-	<div class="imageBox" id="containerDiv" @mousedown="mousedown()" @touchstart="mousedown()" @mousemove="mousemove()" @touchmove="mousemove()">
-		<div class="thumbBox" style="display: none;" ></div>
+	<div class="imageBox" id="containerDiv" :style="{width:boxWidth, height:boxHeight}"  @mousedown="mousedown()" @touchstart="mousedown()" @mousemove="mousemove()" @touchmove="mousemove()">
+		<div class="thumbBox" :style="{display:'none', width:thumbWidth, height:thumbHeight}"></div>
 	 	<div style="position:relative;width:0;height:0;">
 			<div style=" position: absolute;top:100px; left:220px;font-size:18px;background-color: white;color:black;border-radius: 8px;white-space: nowrap;">
 				👍YES Very Good
@@ -67,10 +67,13 @@ window.ontouchend = function() {
 
 var containerDiv = new Vue({
 	el:'#containerDiv',
-	data: {currentBgX:0, currentBgY:0},
+	data: {currentBgX:0, currentBgY:0, thumbWidth:'200', thumbHeight:'200', boxWidth:'400', boxHeight:'400'},
 	methods: {
 		setCurrentBgXY:function() {
-			var bg = cropper.imageBox.css('background-position').split(' '); 
+			
+			// alert(cropper.imageBox[0].style.backgroundPosition);
+			
+			var bg = cropper.imageBox[0].style.backgroundPosition.split(' '); 
             this.currentBgX = parseInt(bg[0]);
             this.currentBgY = parseInt(bg[1]);
 		},
@@ -175,10 +178,12 @@ var actionDiv = new Vue({
 	        cropper.imageBox.css('background-image', 'url(' + cropper.image.src + ')');
 		},
 		zoomIn:function() {
-			cropper.zoomIn();
+			cropbox.ratio *= 1.1;
+            setBackground();
 		},
 		zoomOut:function() {
-			cropper.zoomOut();
+			cropbox.ratio *= 0.9;
+            setBackground();
 		}
 	}
 })
@@ -264,6 +269,60 @@ function getDistance(p1, p2) {
     y = p2.pageY - p1.pageY;
     return Math.sqrt((x * x) + (y * y));
 };
+
+
+
+
+function setBackground() {
+	var w =  parseInt(cropper.image.width) * cropper.ratio;
+    var h =  parseInt(cropper.image.height) * cropper.ratio;
+    var pw = (cropper.imageBox.width() - w) / 2;
+    var ph = (cropper.imageBox.height() - h) / 2;
+    
+    var bgStyle = cropper.imageBox[0].style;
+    
+    bgStyle.backgroundImage = 'url(' +  cropper.image.src + ')';
+    bgStyle.backgroundSize = w + 'px ' + h + 'px';
+    bgStyle.backgroundPosition = pw + 'px ' + ph + 'px';
+    bgStyle.backgroundRepeat = 'no-repeat';
+    
+    containerDiv.setCurrentBgXY();
+}
+
+
+function getDataURL() {
+    var width = containerDiv.thumbWidth;
+    var height = containerDiv.thumbHeight;
+    
+    var canvas = document.createElement("canvas");
+    
+    var bgStyle = cropper.imageBox[0].style; // .split(' '); 
+    
+    var dim = bgStyle.backgroundPosition.split(' ');
+    var size = bgStyle.backgroundSize.split(' ');
+    
+    var dx = parseInt(dim[0]) - containerDiv.boxWidth / 2 + width / 2;
+    var dy = parseInt(dim[1]) - containerDiv.boxHeight / 2 + height / 2;
+    var dw = parseInt(size[0]);
+    var dh = parseInt(size[1]);
+    var sh = parseInt(cropper.image.height);
+    var sw = parseInt(cropper.image.width);
+
+    canvas.width = width;
+    canvas.height = height;
+    var context = canvas.getContext("2d");
+    context.drawImage(cropper.image, 0, 0, sw, sh, dx, dy, dw, dh);
+    var imageData = canvas.toDataURL('image/jpeg');
+    return imageData;
+}
+
+
+
+
+
+
+
+
 
 </script>
 
