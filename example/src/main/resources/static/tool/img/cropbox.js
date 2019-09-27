@@ -16,17 +16,12 @@
                 imageBox : el,
                 thumbBox : el.find(options.thumbBox),
                 image : new Image()
-            },
-            zoomImage = function(e) {
-                e.originalEvent.wheelDelta > 0 || e.originalEvent.detail < 0 ? obj.ratio *= 1.1 : obj.ratio *= 0.9;
-                setBackground();
             }
             
 	        obj.image.onload = function() {
 	            setBackground();
 	          
-	            //  el.bind('mousewheel DOMMouseScroll', zoomImage);
-	            //  document.body.addEventListener("DOMMouseScroll", function(event) { console.dir(event); });
+	            
 	        };
         
         obj.image.src = options.imgSrc;

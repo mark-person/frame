@@ -229,6 +229,11 @@ $(function() {
     
     document.getElementById("cropCircle").src = getCropCircle(actionDiv.circleColor);
   
+    
+    document.body.addEventListener("mousewheel", function(event) {
+    	e.wheelDelta > 0 || e.detail < 0 ? obj.ratio *= 1.1 : obj.ratio *= 0.9;
+        setBackground();
+    });
 });
 
 
