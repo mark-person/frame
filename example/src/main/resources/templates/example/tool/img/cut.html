@@ -8,10 +8,6 @@
 
 <title>MEMORY_DEMO</title>
 
-<!-- 
-<script type="text/javascript" th:src="@{/static/tool/jquery.min-3.3.1.js}"></script>
- -->
-<script type="text/javascript" th:src="@{/static/tool/img/cropbox.js?v=16}"></script>
 <script type="text/javascript" th:src="@{/static/tool/img/html2canvas.min.js}"></script>
 <link rel="stylesheet" th:href="@{/static/tool/img/cut.css}">
 
@@ -27,7 +23,7 @@
 			</div>
 		</div>
    		<img id="cropCircle">
-    	<img id="cropCircleImg" align="absmiddle" style="width:200px;margin-top:4px;border-radius:200px;box-shadow:0px 0px 12px #7E7E7E;display:none">
+    	<img id="cropCircleImg" style="width:200px;margin-top:4px;border-radius:200px;box-shadow:0px 0px 12px #7E7E7E;display:none">
   </div>
   <div class="action" id="actionDiv"> 
     <div class="new-contentarea tc"> 
@@ -41,7 +37,7 @@
     <input type="button" id="btnZoomIn" class="Btnsty_peyton" value="+" @click="zoomIn">
     <input type="button" id="btnZoomOut" class="Btnsty_peyton" value="-" @click="zoomOut">
     -->
-    <input type="button" onclick="autoResize()" class="Btnsty_peyton" value="a">
+    <input type="button" @click="autoResize()" class="Btnsty_peyton" value="a">
     
     <select id="circleColor" v-model="circleColor" @change="circleColorChange(circleColor)" class="v-select">
 	    <option value="red">red</option>
@@ -57,274 +53,23 @@
   -->
 </div>
 
+<script type="text/javascript" th:src="@{/static/tool/img/cropbox.js?v=18}"></script>
 <script type="text/javascript">
 
-
-window.onmouseup = function() {
-	cropper.state.dragable = false;
-}
-
-window.ontouchend = function() {
-    cropper.state.dragable = false;
-}
-
-var imageBoxVue = new Vue({
-	el:'#imageBox',
-	data: {currentBgX:0, currentBgY:0, thumbWidth:'200', thumbHeight:'200', boxWidth:'400', boxHeight:'400'},
-	methods: {
-		setCurrentBgXY:function() {
-			var bg = document.getElementById("imageBox").style.backgroundPosition.split(' '); 
-            this.currentBgX = parseInt(bg[0]);
-            this.currentBgY = parseInt(bg[1]);
-		},
-		mousedown:function() {
-			var e = event;
-			var obj = cropper;
-			obj.state.dragable = true;
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            if (e.targetTouches) {
-                if (e.targetTouches.length == 2) {
-                    var len = getDistance(event.targetTouches[0], event.targetTouches[1]);
-                    obj.state.downLen = len;
-                }
-                else if (e.targetTouches.length == 1) {
-                    var touch = event.targetTouches[0];
-                    obj.state.mouseX = touch.pageX;
-                    obj.state.mouseY = touch.pageY;
-                }
-            }
-            else {
-                obj.state.mouseX = e.clientX;
-                obj.state.mouseY = e.clientY;
-            }
-		},
-		mousemove:function() {
-			var e = event;
-            var obj = cropper;
-            var el = document.getElementById("imageBox");
-            
-			if (!obj.state.dragable) return;
-            e.stopImmediatePropagation();
-            e.preventDefault();
-            if (e.targetTouches) {
-                if (e.targetTouches.length == 2) {
-                    var len = getDistance(event.targetTouches[0], event.targetTouches[1]);
-                    cropper.ratio *= len / obj.state.downLen;
-                    obj.state.downLen = len;
-                    setBackground();
-                    return;
-                }
-                else if (event.targetTouches.length == 1) {
-                    var touch = event.targetTouches[0];
-                    e.clientX = touch.pageX;
-                    e.clientY = touch.pageY;
-                }
-            }
-            
-            var x = e.clientX - obj.state.mouseX;
-            var y = e.clientY - obj.state.mouseY;
-            
-            var bg = el.style.backgroundPosition.split(' ');
-            var bgX = x + parseInt(bg[0]); 
-            var bgY = y + parseInt(bg[1]);
-                            
-            el.style.backgroundPosition =  bgX +'px ' + bgY + 'px';
-            
-            
-            obj.state.mouseX = e.clientX;
-            obj.state.mouseY = e.clientY;
-		}
-	}
-})
-
-var actionDiv = new Vue({
-	el:'#actionDiv',
-	data: {circleColor:'blue'},
-	methods:{
-		circleColorChange:function(value) {
-			document.getElementById("cropCircle").src = getCropCircle(value);
-		},
-		uploadChange:function() {
-			var reader = new FileReader();
-	        reader.onload = function(e) {
-	        	document.getElementById("imageBox").outerHTML = imageBoxHtml;
-	            document.getElementById("cropCircle").src = getCropCircle(actionDiv.circleColor);
-	            options.imgSrc = e.target.result;
-	            cropper = cropbox(options);
-	        }
-	        reader.readAsDataURL(event.currentTarget.files[0]);
-		},
-		crop:function() {
-			 document.getElementById("cropCircle").style.display = "none";
-			 document.getElementById("cropCircleImg").style.display = "block";
-			
-			//$("#cropCircle").hide();
-	        //$("#cropCircleImg").show();
-	       
-	        document.getElementById("cropCircleImg").src = getDataURL();
-	       
-	        var bg = document.getElementById("imageBox").style.backgroundPosition.split(' ');
-	        var bgX = -imageBoxVue.currentBgX + parseInt(bg[0]);
-	        var bgY = -imageBoxVue.currentBgY + parseInt(bg[1]); 
-	        imageBoxVue.setCurrentBgXY();
-	        
-	        var x = cropper.image.width / 2 - bgX / cropper.ratio;
-	        var y = cropper.image.height / 2 - bgY / cropper.ratio;
-	        var canvas = getCircleCanvas(cropper.image.width, cropper.image.height, x, y, actionDiv.circleColor, cropper.ratio);
-	        
-	        // canvas的toDataURL是只能压缩jpg的，当用户上传的图片是png的话，就需要转成jpg，也就是统一用canvas.toDataURL('image/jpeg', 0.1)
-	        cropper.image.onload = function() {
-	        }
-	        
-	        cropper.image.src = canvas.toDataURL('image/jpeg', 1);
-	        document.getElementById("imageBox").style.backgroundImage = 'url(' + cropper.image.src + ')';
-		},
-		zoomIn:function() {
-			cropbox.ratio *= 1.1;
-            setBackground();
-		},
-		zoomOut:function() {
-			cropbox.ratio *= 0.9;
-            setBackground();
-		}
-	}
-})
-
-var cropper;
-var options = {imgSrc: '/static/tool/img/5.jpg'};
-var imageBoxHtml = document.getElementById("imageBox").outerHTML;
-
-	
-cropper = cropbox(options);
-
-document.getElementById("cropCircle").src = getCropCircle(actionDiv.circleColor);
-
-
+var cropper = cropbox({imgSrc:'/static/tool/img/5.jpg'});
+document.getElementById("cropCircle").src = util.getCropCircle(actionVue.circleColor);
 document.body.addEventListener("mousewheel", function(e) {
 	e.wheelDelta > 0 || e.detail < 0 ? cropper.ratio *= 1.1 : cropper.ratio *= 0.9;
-    setBackground();
+    util.setBackground();
 });
-
-function getCircleCanvas(w, h, x, y, color, ratio) {
-	var canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    var context = canvas.getContext("2d");
-    
-    if (ratio) {
-    	context.drawImage(cropper.image, 0, 0, cropper.image.width, cropper.image.height, 0, 0, cropper.image.width, cropper.image.height);
-    }
-    else {
-    	ratio = 1;
-    }
-    
-    context.lineWidth = 3;
-    context.beginPath();
-    context.setLineDash([4,2]);
-    
-    context.arc(x, y, 100 / ratio, 0, Math.PI * 2, true);
-    context.strokeStyle = color;
-    context.stroke();
-    context.closePath();
-    return canvas;
-}
-
-function getCropCircle(color) {
-	var w = imageBoxVue.boxWidth;
-	var h = imageBoxVue.boxHeight;
-    var canvas = getCircleCanvas(w, h, w/2, h/2, color);
-    var imageData = canvas.toDataURL('image/png');
-    return imageData;
-}
-
-
-function getDistance(p1, p2) {
-    var x = p2.pageX - p1.pageX,
-    y = p2.pageY - p1.pageY;
-    return Math.sqrt((x * x) + (y * y));
-}
-
-
-function setBackground() {
-	var w =  parseInt(cropper.image.width) * cropper.ratio;
-    var h =  parseInt(cropper.image.height) * cropper.ratio;
-    var pw = (imageBoxVue.boxWidth - w) / 2;
-    var ph = (imageBoxVue.boxHeight - h) / 2;
-    
-    var bgStyle = document.getElementById("imageBox").style;
-    
-    bgStyle.backgroundImage = 'url(' +  cropper.image.src + ')';
-    bgStyle.backgroundSize = w + 'px ' + h + 'px';
-    bgStyle.backgroundPosition = pw + 'px ' + ph + 'px';
-    bgStyle.backgroundRepeat = 'no-repeat';
-    
-    imageBoxVue.setCurrentBgXY();
-}
-
-
-function getDataURL() {
-    var width = imageBoxVue.thumbWidth;
-    var height = imageBoxVue.thumbHeight;
-    
-    var canvas = document.createElement("canvas");
-    
-    var bgStyle = document.getElementById("imageBox").style; 
-    
-    var dim = bgStyle.backgroundPosition.split(' ');
-    var size = bgStyle.backgroundSize.split(' ');
-    
-    var dx = parseInt(dim[0]) - imageBoxVue.boxWidth / 2 + width / 2;
-    var dy = parseInt(dim[1]) - imageBoxVue.boxHeight / 2 + height / 2;
-    var dw = parseInt(size[0]);
-    var dh = parseInt(size[1]);
-    var sh = parseInt(cropper.image.height);
-    var sw = parseInt(cropper.image.width);
-
-    canvas.width = width;
-    canvas.height = height;
-    var context = canvas.getContext("2d");
-    context.drawImage(cropper.image, 0, 0, sw, sh, dx, dy, dw, dh);
-    var imageData = canvas.toDataURL('image/jpeg');
-    return imageData;
-}
-
-
-function autoResize() {
-    var w = imageBoxVue.boxWidth;
-    var h = imageBoxVue.boxHeight;
-    
-    var x = 0;
-    var y = 0;
-    
-    var imgW = cropper.image.width;
-    var imgH = cropper.image.height;
-    if (imgW > imgH) {
-        h = w * imgH / imgW;
-        y = (imageBoxVue.boxHeight - h) / 2;
-    }
-    else if(imgW < imgH) {
-        w = h *  imgW / imgH;
-        x = (imageBoxVue.boxWidth - w) / 2;
-    }
-    
-    
-    var bgStyle = document.getElementById("imageBox").style;
-    bgStyle.backgroundImage = 'url(' +  cropper.image.src + ')';
-    bgStyle.backgroundSize = w + 'px ' + h + 'px';
-    bgStyle.backgroundPosition = x + 'px ' + y + 'px';
-    bgStyle.backgroundRepeat = 'no-repeat';
-}
-
+window.onmouseup = function() {cropper.state.dragable = false}
+window.ontouchend = function() { cropper.state.dragable = false}
 
 function test() {
     html2canvas(document.getElementById("imageBox")).then(function(canvas) {
         document.body.appendChild(canvas);
     });
 }
-
-
-
 </script>
 
 </body>
