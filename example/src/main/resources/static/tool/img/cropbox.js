@@ -20,12 +20,9 @@
             
 	        obj.image.onload = function() {
 	            setBackground();
-	          
-	            
 	        };
         
         obj.image.src = options.imgSrc;
-        el.on('remove', function(){$(window).unbind('mouseup', imgMouseUp)});
         return obj;
     };
 

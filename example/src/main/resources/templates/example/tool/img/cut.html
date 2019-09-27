@@ -158,7 +158,7 @@ var actionDiv = new Vue({
 		crop:function() {
 			$("#cropCircle").hide();
 	        $("#cropCircleImg").show();
-	        $("#cropCircleImg").attr("src", cropper.getDataURL());
+	        $("#cropCircleImg").attr("src", getDataURL());
 	       
 	        var bg = cropper.imageBox.css('background-position').split(' ');
 	        var bgX = -containerDiv.currentBgX + parseInt(bg[0]);
@@ -230,8 +230,8 @@ $(function() {
     document.getElementById("cropCircle").src = getCropCircle(actionDiv.circleColor);
   
     
-    document.body.addEventListener("mousewheel", function(event) {
-    	e.wheelDelta > 0 || e.detail < 0 ? obj.ratio *= 1.1 : obj.ratio *= 0.9;
+    document.body.addEventListener("mousewheel", function(e) {
+    	e.wheelDelta > 0 || e.detail < 0 ? cropper.ratio *= 1.1 : cropper.ratio *= 0.9;
         setBackground();
     });
 });
@@ -246,12 +246,15 @@ function getCircleCanvas(w, h, x, y, color, ratio) {
     if (ratio) {
     	context.drawImage(cropper.image, 0, 0, cropper.image.width, cropper.image.height, 0, 0, cropper.image.width, cropper.image.height);
     }
+    else {
+    	ratio = 1;
+    }
     
     context.lineWidth = 3;
     context.beginPath();
     context.setLineDash([4,2]);
     
-    context.arc(x, y, 100, 0, Math.PI*2, true);
+    context.arc(x, y, 100 / ratio, 0, Math.PI*2, true);
     context.strokeStyle = color;
     context.stroke();
     context.closePath();
