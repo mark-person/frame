@@ -17,7 +17,7 @@
 </head>
 <body>
 <div class="container">
-	<div class="imageBox" id="containerDiv" :style="{width:boxWidth, height:boxHeight}"  @mousedown="mousedown()" @touchstart="mousedown()" @mousemove="mousemove()" @touchmove="mousemove()">
+	<div id="imageBox" :style="{width:boxWidth, height:boxHeight}"  @mousedown="mousedown()" @touchstart="mousedown()" @mousemove="mousemove()" @touchmove="mousemove()">
 		<div class="thumbBox" :style="{display:'none', width:thumbWidth, height:thumbHeight}"></div>
 	 	<div style="position:relative;width:0;height:0;">
 			<div style=" position: absolute;top:100px; left:220px;font-size:18px;background-color: white;color:black;border-radius: 8px;white-space: nowrap;">
@@ -57,6 +57,7 @@
 
 <script type="text/javascript">
 
+
 window.onmouseup = function() {
 	cropper.state.dragable = false;
 }
@@ -65,15 +66,12 @@ window.ontouchend = function() {
     cropper.state.dragable = false;
 }
 
-var containerDiv = new Vue({
-	el:'#containerDiv',
+var imageBoxVue = new Vue({
+	el:'#imageBox',
 	data: {currentBgX:0, currentBgY:0, thumbWidth:'200', thumbHeight:'200', boxWidth:'400', boxHeight:'400'},
 	methods: {
 		setCurrentBgXY:function() {
-			
-			// alert(cropper.imageBox[0].style.backgroundPosition);
-			
-			var bg = cropper.imageBox[0].style.backgroundPosition.split(' '); 
+			var bg = document.getElementById("imageBox").style.backgroundPosition.split(' '); 
             this.currentBgX = parseInt(bg[0]);
             this.currentBgY = parseInt(bg[1]);
 		},
@@ -148,7 +146,7 @@ var actionDiv = new Vue({
 		uploadChange:function() {
 			var reader = new FileReader();
 	        reader.onload = function(e) {
-	        	document.getElementById("containerDiv").outerHTML = imageBoxHtml;
+	        	document.getElementById("imageBox").outerHTML = imageBoxHtml;
 	            $("#cropCircle").attr("src", getCropCircle(actionDiv.circleColor));
 	            options.imgSrc = e.target.result;
 	            cropper = $('.imageBox').cropbox(options);
@@ -160,10 +158,10 @@ var actionDiv = new Vue({
 	        $("#cropCircleImg").show();
 	        $("#cropCircleImg").attr("src", getDataURL());
 	       
-	        var bg = cropper.imageBox.css('background-position').split(' ');
-	        var bgX = -containerDiv.currentBgX + parseInt(bg[0]);
-	        var bgY = -containerDiv.currentBgY + parseInt(bg[1]); 
-	        containerDiv.setCurrentBgXY();
+	        var bg = document.getElementById("imageBox").style.backgroundPosition.split(' ');
+	        var bgX = -imageBoxVue.currentBgX + parseInt(bg[0]);
+	        var bgY = -imageBoxVue.currentBgY + parseInt(bg[1]); 
+	        imageBoxVue.setCurrentBgXY();
 	        
 	        var x = cropper.image.width / 2 - bgX / cropper.ratio;
 	        var y = cropper.image.height / 2 - bgY / cropper.ratio;
@@ -171,11 +169,11 @@ var actionDiv = new Vue({
 	        
 	        // canvas的toDataURL是只能压缩jpg的，当用户上传的图片是png的话，就需要转成jpg，也就是统一用canvas.toDataURL('image/jpeg', 0.1)
 	        cropper.image.onload = function() {
-	            cropper.imageBox.css('background-position', containerDiv.currentBgX  + 'px ' +  containerDiv.currentBgY + "px");
+	           // cropper.imageBox.css('background-position', imageBoxVue.currentBgX  + 'px ' +  imageBoxVue.currentBgY + "px");
 	        }
 	        
-	        cropper.image.src = canvas.toDataURL('image/jpeg', 0.9);
-	        cropper.imageBox.css('background-image', 'url(' + cropper.image.src + ')');
+	        cropper.image.src = canvas.toDataURL('image/jpeg', 1);
+	        document.getElementById("imageBox").style.backgroundImage = 'url(' + cropper.image.src + ')';
 		},
 		zoomIn:function() {
 			cropbox.ratio *= 1.1;
@@ -189,8 +187,8 @@ var actionDiv = new Vue({
 })
 
 function autoResize() {
-	var w = cropper.imageBox.width();
-    var h = cropper.imageBox.height();
+	var w = imageBoxVue.boxWidth;
+    var h = imageBoxVue.boxHeight;
     
     var x = 0;
     var y = 0;
@@ -199,33 +197,39 @@ function autoResize() {
     var imgH = cropper.image.height;
     if (imgW > imgH) {
     	h = w * imgH / imgW;
-    	y = (cropper.imageBox.height() - h) / 2;
+    	y = (imageBoxVue.boxHeight - h) / 2;
     }
     else if(imgW < imgH) {
     	w = h *  imgW / imgH;
-    	x = (cropper.imageBox.width() - w) / 2;
+    	x = (imageBoxVue.boxWidth - w) / 2;
     }
 	
+    /*
     cropper.imageBox.css({
     	'background-image': 'url(' + cropper.image.src + ')',
         'background-size': w + 'px ' + h + 'px',
         'background-position': x + 'px ' + y + 'px',
-        'background-repeat': 'no-repeat'});
+        'background-repeat': 'no-repeat'});*/
+        var bgStyle = document.getElementById("imageBox").style;
+    bgStyle.backgroundImage = 'url(' +  cropper.image.src + ')';
+    bgStyle.backgroundSize = w + 'px ' + h + 'px';
+    bgStyle.backgroundPosition = x + 'px ' + y + 'px';
+    bgStyle.backgroundRepeat = 'no-repeat';
 }
 
 function test() {
-    html2canvas(document.getElementById("containerDiv")).then(function(canvas) {
+    html2canvas(document.getElementById("imageBox")).then(function(canvas) {
         document.body.appendChild(canvas);
     });
 }
 
 
 var cropper;
-var options = {thumbBox: '.thumbBox', imgSrc: '/static/tool/img/5.jpg'};
-var imageBoxHtml = document.getElementById("containerDiv").outerHTML;
+var options = {imgSrc: '/static/tool/img/5.jpg'};
+var imageBoxHtml = document.getElementById("imageBox").outerHTML;
 $(function() {
 	
-    cropper = $('.imageBox').cropbox(options);
+    cropper = $('#imageBox').cropbox(options);
     
     document.getElementById("cropCircle").src = getCropCircle(actionDiv.circleColor);
   
@@ -262,8 +266,8 @@ function getCircleCanvas(w, h, x, y, color, ratio) {
 }
 
 function getCropCircle(color) {
-	var w = $("#containerDiv").width();
-	var h = $("#containerDiv").height();
+	var w = $("#imageBox").width();
+	var h = $("#imageBox").height();
     
     var canvas = getCircleCanvas(w, h, w/2, h/2, color);
     
@@ -284,33 +288,33 @@ function getDistance(p1, p2) {
 function setBackground() {
 	var w =  parseInt(cropper.image.width) * cropper.ratio;
     var h =  parseInt(cropper.image.height) * cropper.ratio;
-    var pw = (cropper.imageBox.width() - w) / 2;
-    var ph = (cropper.imageBox.height() - h) / 2;
+    var pw = (imageBoxVue.boxWidth - w) / 2;
+    var ph = (imageBoxVue.boxHeight - h) / 2;
     
-    var bgStyle = cropper.imageBox[0].style;
+    var bgStyle = document.getElementById("imageBox").style;
     
     bgStyle.backgroundImage = 'url(' +  cropper.image.src + ')';
     bgStyle.backgroundSize = w + 'px ' + h + 'px';
     bgStyle.backgroundPosition = pw + 'px ' + ph + 'px';
     bgStyle.backgroundRepeat = 'no-repeat';
     
-    containerDiv.setCurrentBgXY();
+    imageBoxVue.setCurrentBgXY();
 }
 
 
 function getDataURL() {
-    var width = containerDiv.thumbWidth;
-    var height = containerDiv.thumbHeight;
+    var width = imageBoxVue.thumbWidth;
+    var height = imageBoxVue.thumbHeight;
     
     var canvas = document.createElement("canvas");
     
-    var bgStyle = cropper.imageBox[0].style; // .split(' '); 
+    var bgStyle = document.getElementById("imageBox").style; // .split(' '); 
     
     var dim = bgStyle.backgroundPosition.split(' ');
     var size = bgStyle.backgroundSize.split(' ');
     
-    var dx = parseInt(dim[0]) - containerDiv.boxWidth / 2 + width / 2;
-    var dy = parseInt(dim[1]) - containerDiv.boxHeight / 2 + height / 2;
+    var dx = parseInt(dim[0]) - imageBoxVue.boxWidth / 2 + width / 2;
+    var dy = parseInt(dim[1]) - imageBoxVue.boxHeight / 2 + height / 2;
     var dw = parseInt(size[0]);
     var dh = parseInt(size[1]);
     var sh = parseInt(cropper.image.height);

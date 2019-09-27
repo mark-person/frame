@@ -29,7 +29,7 @@
 	box-shadow: 0px 0px 12px #ddd;
 	text-align: center;
 }
-.imageBox {
+#imageBox {
 	position: relative;
 	height: 400px;
 	width: 400px;
@@ -40,7 +40,7 @@
 	cursor: move;
 	box-shadow: 4px 4px 12px #B0B0B0; 
 }
-.imageBox .thumbBox {
+#imageBox .thumbBox {
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -52,16 +52,6 @@
 	border: 1px solid rgb(102, 102, 102);
 	box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
 	background: none repeat scroll 0% 0% transparent;
-}
-.imageBox .spinner {
-	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-	text-align: center;
-	line-height: 400px;
-	background: rgba(0,0,0,0.7);
 }
 .Btnsty_peyton{ float: right;
    width: 36px;

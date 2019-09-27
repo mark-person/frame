@@ -8,13 +8,12 @@
     }
 }(function ($) {
     var cropbox = function(options, el){
-        var el = el || $(options.imageBox),
-            obj = {
+        var el = el || $(options.imageBox);
+        var obj = {
                 state : {},
                 ratio : 1,
                 options : options,
                 imageBox : el,
-                thumbBox : el.find(options.thumbBox),
                 image : new Image()
             }
             
