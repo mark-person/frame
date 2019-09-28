@@ -100,6 +100,9 @@ var actionVue = new Vue({
 	        var canvas = util.getCircleCanvas(cropper.image.width, cropper.image.height, x, y, actionVue.circleColor, cropper.ratio);
 	        
 	        // canvas的toDataURL是只能压缩jpg的，上传的图片是png的话，转成jpg， 统一用canvas.toDataURL('image/jpeg', 0.1)
+	        cropper.image.onload = function() {
+	        	document.getElementById("imageBox").style.backgroundPosition = imageBoxVue.currentBgX + " px" + imageBoxVue.currentBgY + "px";
+	        }
 	        cropper.image.src = canvas.toDataURL('image/jpeg', 1);
 	        document.getElementById("imageBox").style.backgroundImage = 'url(' + cropper.image.src + ')';
 		},
