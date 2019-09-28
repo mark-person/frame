@@ -20,6 +20,9 @@
     <div style="position:relative;width:0;height:0;">
          <div class="imgText" :style="{top:text.x + 'px',left:text.y + 'px',backgroundColor:text.color,color:text.bgColor}">{{text.value}}</div>
     </div>
+    <div style="position:relative;width:0;height:0;">
+         <div class="imgText" :style="{top:text2.x + 'px',left:text2.y + 'px',backgroundColor:text2.color,color:text2.bgColor}">{{text.value}}</div>
+    </div>
     <img id="cropCircle">
     <img id="cropCircleImg" style="width:200px;margin-top:4px;border-radius:200px;box-shadow:0px 0px 12px #7E7E7E;display:none">
 </div>
@@ -45,20 +48,10 @@
         <span>字体</span>
         <input v-model="text.value" type="text" class="v-text">
         <select v-model="text.color" @change="" class="v-select" style="width:3.5rem">
-            <option value="red">红</option>
-            <option value="yellow">黄</option>
-            <option value="white">白</option>
-            <option value="black">黑</option>
-            <option value="blue">蓝</option>
-            <option value="green">绿</option>
+            <option v-for="item in TEXT_COLOR_LIST" :value="item.v">{{item.t}}</option>
         </select>
-        <select v-model="text.bgColor" @change="" class="v-select" style="width:3.5rem">
-            <option value="red">红</option>
-            <option value="yellow">黄</option>
-            <option value="white">白</option>
-            <option value="black">黑</option>
-            <option value="blue">蓝</option>
-            <option value="green">绿</option>
+        <select v-model="text.bgColor" class="v-select" style="width:3.5rem">
+            <option v-for="item in TEXT_COLOR_LIST" :value="item.v">{{item.t}}</option>
         </select>
         <span>字体位置</span>
         <input type="text" v-model="text.x" class="v-text" style="width:4rem">
@@ -66,8 +59,33 @@
         
         <button type="button" class="v-button" @click="textOk()">textOk</button>
     </div>
+    <div style="display:flex;align-items: center;justify-content:space-around;flex-wrap:wrap">
+        <span>字体</span>
+        <input v-model="text2.value" type="text" class="v-text">
+        <select v-model="text2.color" class="v-select" style="width:3.5rem">
+            <option v-for="item in TEXT_COLOR_LIST" :value="item.v">{{item.t}}</option>
+        </select>
+        <select v-model="text2.bgColor" @change="" class="v-select" style="width:3.5rem">
+            <option v-for="item in TEXT_COLOR_LIST" :value="item.v">{{item.t}}</option>
+        </select>
+        <span>字体位置</span>
+        <input type="text" v-model="text2.x" class="v-text" style="width:4rem">
+        <input type="text" v-model="text2.y" class="v-text" style="width:4rem">
+        
+        <button type="button" class="v-button" @click="textOk2()">textOk</button>
+    </div>
 </div>
 </div>
+<script type="text/javascript">
+var TEXT_COLOR_LIST = [];
+TEXT_COLOR_LIST.push({v:'red', t:'红'});
+TEXT_COLOR_LIST.push({v:'yellow', t:'黄'});
+TEXT_COLOR_LIST.push({v:'white', t:'白'});
+TEXT_COLOR_LIST.push({v:'black', t:'黑'});
+TEXT_COLOR_LIST.push({v:'blue', t:'蓝'});
+TEXT_COLOR_LIST.push({v:'green', t:'绿'});
+
+</script>
 
 <script type="text/javascript" th:src="@{/static/tool/img/cropbox.js?v=01}"></script>
 <script type="text/javascript">
