@@ -15,45 +15,61 @@
 </head>
 <body>
 <div class="container">
-	<div id="imageBox" :style="{width:boxWidth, height:boxHeight}"  @mousedown="mousedown()" @touchstart="mousedown()" @mousemove="mousemove()" @touchmove="mousemove()">
-		<div class="thumbBox" :style="{display:'none', width:thumbWidth, height:thumbHeight}"></div>
-	 	<div style="position:relative;width:0;height:0;">
-			<div style=" position: absolute;top:100px; left:220px;font-size:18px;background-color: white;color:black;border-radius: 8px;white-space: nowrap;">
-				👍YES Very Good
-			</div>
-		</div>
-   		<img id="cropCircle">
-    	<img id="cropCircleImg" style="width:200px;margin-top:4px;border-radius:200px;box-shadow:0px 0px 12px #7E7E7E;display:none">
-  </div>
-  <div class="action" id="actionDiv"> 
-    <div class="new-contentarea tc"> 
-        <a href="javascript:void(0)" class="upload-img">
-            <label for="upload-file">add</label>
-        </a>
-        <input type="file" name="upload-file" id="upload-file" @change="uploadChange" />
+<div id="imageBox" :style="{width:boxWidth, height:boxHeight}"  @mousedown="mousedown()" @touchstart="mousedown()" @mousemove="mousemove()" @touchmove="mousemove()">
+    <div class="thumbBox" :style="{display:'none', width:thumbWidth, height:thumbHeight}"></div>
+    <div style="position:relative;width:0;height:0;">
+         <div class="imgText" :style="{top:text.x + 'px',left:text.y + 'px',backgroundColor:text.color,color:text.bgColor}">{{text.value}}</div>
     </div>
-    <input type="button" id="btnCrop" class="Btnsty_peyton" value="CUT" @click="crop()">
-    <!--  
-    <input type="button" id="btnZoomIn" class="Btnsty_peyton" value="+" @click="zoomIn">
-    <input type="button" id="btnZoomOut" class="Btnsty_peyton" value="-" @click="zoomOut">
-    -->
-    <input type="button" @click="autoResize()" class="Btnsty_peyton" value="a">
-    
-    <select id="circleColor" v-model="circleColor" @change="circleColorChange(circleColor)" class="v-select">
-	    <option value="red">red</option>
-	    <option value="yellow">yellow</option>
-	    <option value="white">white</option>
-	    <option value="black">black</option>
-	    <option value="blue">blue</option>
-	    <option value="green">green</option>
-    </select>
-  </div>
-  <!--
-  <input type="button"  onclick="test()" class="Btnsty_peyton" value="test">
-  -->
+    <img id="cropCircle">
+    <img id="cropCircleImg" style="width:200px;margin-top:4px;border-radius:200px;box-shadow:0px 0px 12px #7E7E7E;display:none">
 </div>
 
-<script type="text/javascript" th:src="@{/static/tool/img/cropbox.js?v=18}"></script>
+<div class="action" id="actionDiv">
+    <div style="display:flex;align-items: center;justify-content:space-around">
+	    <input type="file" name="upload-file" id="upload-file" @change="uploadChange" style="display: none"/>
+	    <button class="v-button" onclick="document.getElementById('upload-file').click()">上传</button>
+	    <span>圆颜色</span>
+	    <select v-model="circleColor" @change="circleColorChange(circleColor)" class="v-select" style="width:3.5rem">
+		    <option value="red">红</option>
+		    <option value="yellow">黄</option>
+		    <option value="white">白</option>
+		    <option value="black">黑</option>
+		    <option value="blue">蓝</option>
+		    <option value="green">绿</option>
+	    </select>
+	    <button type="button" class="v-button-primary" @click="crop()">crop</button>
+	    <button type="button" class="v-button" @click="autoResize()">auto</button>
+	    <!-- <input type="button"  onclick="test()" class="Btnsty_peyton" value="test"> -->
+    </div>
+    <div style="display:flex;align-items: center;justify-content:space-around;flex-wrap:wrap">
+        <span>字体</span>
+        <input v-model="text.value" type="text" class="v-text">
+        <select v-model="text.color" @change="" class="v-select" style="width:3.5rem">
+            <option value="red">红</option>
+            <option value="yellow">黄</option>
+            <option value="white">白</option>
+            <option value="black">黑</option>
+            <option value="blue">蓝</option>
+            <option value="green">绿</option>
+        </select>
+        <select v-model="text.bgColor" @change="" class="v-select" style="width:3.5rem">
+            <option value="red">红</option>
+            <option value="yellow">黄</option>
+            <option value="white">白</option>
+            <option value="black">黑</option>
+            <option value="blue">蓝</option>
+            <option value="green">绿</option>
+        </select>
+        <span>字体位置</span>
+        <input type="text" v-model="text.x" class="v-text" style="width:4rem">
+        <input type="text" v-model="text.y" class="v-text" style="width:4rem">
+        
+        <button type="button" class="v-button" @click="textOk()">textOk</button>
+    </div>
+</div>
+</div>
+
+<script type="text/javascript" th:src="@{/static/tool/img/cropbox.js?v=01}"></script>
 <script type="text/javascript">
 
 var cropper = cropbox({imgSrc:'/static/tool/img/5.jpg'});

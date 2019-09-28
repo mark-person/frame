@@ -8,7 +8,7 @@ var cropbox = function(options) {
 
 var imageBoxVue = new Vue({
 	el:'#imageBox',
-	data: {currentBgX:0, currentBgY:0, thumbWidth:'200', thumbHeight:'200', boxWidth:'400', boxHeight:'400'},
+	data: {currentBgX:0, currentBgY:0, thumbWidth:'200', thumbHeight:'200', boxWidth:'400', boxHeight:'400', text:{}},
 	methods: {
 		setCurrentBgXY:function() {
 			var bg = document.getElementById("imageBox").style.backgroundPosition.split(' '); 
@@ -70,7 +70,7 @@ var imageBoxVue = new Vue({
 
 var actionVue = new Vue({
 	el:'#actionDiv',
-	data: {circleColor:'blue'},
+	data: {circleColor:'blue', text:{value:'text', color:'white', bgColor:'black', x:0, y:0}},
 	methods:{
 		circleColorChange:function(value) {
 			document.getElementById("cropCircle").src = util.getCropCircle(value);
@@ -131,6 +131,9 @@ var actionVue = new Vue({
 		zoomOut:function() {
 			cropbox.ratio *= 0.9;
 			util.setBackground();
+		},
+		textOk:function() {
+			imageBoxVue.text = this.text;
 		}
 	}
 })

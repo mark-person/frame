@@ -13,10 +13,8 @@ public class ImgController {
 	
 	
 	@RequestMapping("/cut")
-	public ModelAndView cut
-	(ModelAndView mv, HttpServletRequest request) {
+	public ModelAndView cut(ModelAndView mv, HttpServletRequest request) {
 	
-		System.out.println(".....out:123");
 		
 		return mv;
 	}
