@@ -12,20 +12,19 @@ import org.springframework.web.servlet.ModelAndView;
 public class ImgController {
 	
 	
-	@RequestMapping("/cut")
+	@RequestMapping("/crop")
 	public ModelAndView cut(ModelAndView mv, HttpServletRequest request) {
-	
-		
 		return mv;
 	}
 	
 	@RequestMapping("/mobile")
 	public ModelAndView mobile(ModelAndView mv, HttpServletRequest request) {
-		
-		
 		return mv;
 	}
 	
-	
+	@RequestMapping("/cut")
+	public ModelAndView mobile(ModelAndView mv) {
+		return mv;
+	}
 
 }
