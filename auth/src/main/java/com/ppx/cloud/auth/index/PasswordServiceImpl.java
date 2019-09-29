@@ -24,7 +24,7 @@ public class PasswordServiceImpl extends MyDaoSupport {
         String password = (String) map.get("login_password");
         if (!password.equals(AuthUtils.getMD5Password(oldPassword))) {
             // 旧密码不正确
-            return ControllerReturn.of(20000, "旧密码不正确");
+            return ControllerReturn.error(30000, "旧密码不正确");
         }
         // 更新密码
        getJdbcTemplate().update("update auth_account set login_password = ?, modified = now() where account_id = ?",

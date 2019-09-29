@@ -37,7 +37,7 @@ public class IndexController {
 		return mv;
 	}	
 	
-	public Map<?, ?> updatePassword(@RequestParam String oldP, @RequestParam String newP) {
+	public Map<String, Object> updatePassword(@RequestParam String oldP, @RequestParam String newP) {
 		return passwrodImpl.updatePassword(oldP, newP);
 	}
 	

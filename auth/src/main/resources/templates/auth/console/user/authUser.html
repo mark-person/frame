@@ -10,7 +10,7 @@
 <div id="page" v-cloak>
 	<div class="v-title">
 		<label>用户管理</label>
-		<button class="v-button" onclick="vModal.show('新增')">新增</button>
+		<button class="v-button" onclick="add()">新增</button>
 		<input type="text" class="v-text" v-model="p.demoName" maxlength="32">
 		<button class="v-button" @click="goto()">搜索</button>
 	</div>
@@ -115,17 +115,21 @@
 var vPage = base.page("auth/authUser/list", [[${data}]]);
 
 var vModal = base.modal("modal", function(p) {
-	axios.post("auth/authUser/insert", p).then(function(res) {
-		vModal.hide();
-		vPage.goto();
-	})
-}, function(p) {
 	return {
 		userName:V.notNull(p.userName),
 		loginAccount:V.notNull(p.loginAccount),
 		loginPassword:V.notNull(p.loginPassword) || util.validatePassword(p.loginPassword)
 	}
 })
+
+function add() {
+	vModal.show("新增", {}, function(p) {
+        axios.post("auth/authUser/insert", p).then(function(res) {
+			vModal.hide();
+			vPage.goto();
+		})
+    });
+}
 
 var accountModal = base.modal("accountModal", function(p) {
 	return {
