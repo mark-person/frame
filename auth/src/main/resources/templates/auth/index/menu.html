@@ -28,39 +28,25 @@
 	</ul>
 </div>
 
-
 <div id="rightDiv" style="width:100%">
-
 <div class="top-div">
-	<a :class="'fa fa-chevron-'+(menuVue.menuShow?'left':'right')" style="padding:0px 20px;" @click="toggleMenu()" href="javascript:"></a>
+	<a :class="'fa fa-chevron-'+(menuVue.menuShow?'left':'right')" style="padding:0px 20px;" @click="toggleMenu()"></a>
 	<span>帐号：</span><span th:text="${account.loginAccount}"></span>
-	<span style="margin-left:20px">用户名称：</span><span th:text="${account.userName}"></span>
+	<span style="margin-left:1.5rem">用户名称：</span><span th:text="${account.userName}"></span>
 	
-	<a @click="monitor()" style="margin-left:20px">日志监控</a>
+	<a @click="monitor()" style="margin-left:1.5rem">日志监控</a>
 	
-	<a @click="index()" style="margin-left:20px">首页</a><span>｜</span>
+	<a @click="index()" style="margin-left:1.5rem">首页</a><span>｜</span>
 	<span th:if="${account.accountId != -1}"><a @click="editPassword()">修改密码</a>｜</span>
     <a href="javascript:" @click="logout()">退出</a>&nbsp;&nbsp;
 </div>
-
-
 <iframe v-show="!showLoading" id="content" :src="src" @load="menuVue.isLoading=false;showLoading=false;"></iframe>
-
 <div v-show="showLoading" class="fa fa-refresh fa-spin fa-2x" style="width:100%;text-align:center;margin-top:2rem"></div>
-
 </div>
 
 <script type="text/javascript" th:inline="javascript">
-
-
-
-
-var menu = [{id:1,t:'发布管理',s:1,c:[{id:2,t:'发布代码',s:0}]},
-	{id:3,t:'发版相关信息',s:0,c:[{id:4,t:'越权测试1',s:0},{id:5,t:'越权测试2',s:0}]},
-	{id:10,t:'发版相关信息',s:0,c:[{id:11,t:'越权测试1',s:0},{id:12,t:'越权测试2',s:0}]}
-	]
 	
-menu = [[${menu}]]
+var menu = [[${menu}]];
 menu[0].s = 1;
 var menuVue = new Vue({el:'#menuDiv', data:{menu:menu, selectedMenu:{}, menuShow:true, isLoading:false},
 	methods:{
@@ -71,9 +57,6 @@ var menuVue = new Vue({el:'#menuDiv', data:{menu:menu, selectedMenu:{}, menuShow
 			this.selectedMenu = m;
 			m.s = 1;
 			
-			
-			// rightDiv.src = m.uri;
-			
 			this.isLoading = true;
 			// n毫秒没有加载完页面才出现loading
 		    setTimeout(function() {
@@ -81,10 +64,6 @@ var menuVue = new Vue({el:'#menuDiv', data:{menu:menu, selectedMenu:{}, menuShow
 		            rightDiv.showLoading = true;
 		        }
 		    }, 400);
-		   
-		    
-		    
-			
 		},
 		onFolder:function(f) {
 			for (var i = 0; i < this.menu.length; i++) {
@@ -97,7 +76,9 @@ var menuVue = new Vue({el:'#menuDiv', data:{menu:menu, selectedMenu:{}, menuShow
 	}
 });
 
-var rightDiv = new Vue({el:'#rightDiv', data:{src:'/auth/index/home', showLoading:false},
+var homeUrl = [[${account.accountId}]] == -1 ? '/auth/index/adminHome' : '/auth/index/home';
+
+var rightDiv = new Vue({el:'#rightDiv', data:{src:homeUrl, showLoading:false},
 	methods:{
 		toggleMenu:function() {
 			menuVue.menuShow = (menuVue.menuShow) ? false : true;
@@ -106,10 +87,10 @@ var rightDiv = new Vue({el:'#rightDiv', data:{src:'/auth/index/home', showLoadin
 			open(baseURL + "monitor/console/console");
 		},
 		index:function() {
-			rightDiv.src = "/auth/index/home";
+			document.getElementById("content").src = homeUrl;
 		},
 		editPassword:function() {
-			alert("editPassword");	
+			document.getElementById("content").src = "/auth/index/editPassword";
 		},
 		logout:function() {
 			if (!confirm("确定退出?")) return;
