@@ -23,8 +23,9 @@
 <img id="showImg">
 
 <script type="text/javascript">
+var util = {};
 
-function uploadFileChange() {
+function uploadFileChangeX() {
 	var reader = new FileReader();
     reader.onload = function(e) {
         // alert(e.target.result);
@@ -43,7 +44,7 @@ function uploadFileChange() {
 		        var drawHeight = tmpImg.height;
 		        // iphone不同方向拍摄
 		        if (orient == 3 || orient == 6 || orient == 8) {
-		        	var o = changeOrient(tmpImg, canvas, context, orient)
+		        	var o = util.changeOrient(tmpImg, canvas, context, orient)
 		        	drawWidth = o.drawWidth;
 		        	drawHeight = o.drawHeight;
 		        	context.drawImage(this, 0, 0, drawWidth, drawHeight);
@@ -65,9 +66,56 @@ function uploadFileChange() {
 }
 
 
+const uploadFile = function() {
+    return new Promise((resolve, reject) => {
+    	var reader = new FileReader();
+        reader.onload = function(e) {
+            // alert(e.target.result);
+            //EXIF js 可以读取图片的元信息  https://github.com/exif-js/exif-js
+            var tmpImg = new Image();
+            
+            var canvas = document.createElement("canvas");
+    		canvas.width = this.width;
+    	    canvas.height = this.height;
+    	    var context = canvas.getContext("2d");
+            
+            tmpImg.onload = function() {
+            	EXIF.getData(this, function() {
+        	        var orient = EXIF.getTag(this, 'Orientation');
+    		        var drawWidth = tmpImg.width;
+    		        var drawHeight = tmpImg.height;
+    		        // iphone不同方向拍摄
+    		        if (orient == 3 || orient == 6 || orient == 8) {
+    		        	var o = util.changeOrient(tmpImg, canvas, context, orient)
+    		        	drawWidth = o.drawWidth;
+    		        	drawHeight = o.drawHeight;
+    		        	context.drawImage(this, 0, 0, drawWidth, drawHeight);
+    		        }
+    		        else {
+    		        	canvas.width = tmpImg.width;
+    		            canvas.height = tmpImg.height;
+    		            context.drawImage(this, 0, 0, drawWidth, drawHeight, 0, 0, drawWidth, drawHeight);
+    		        }
+    			    var newSrc = canvas.toDataURL('image/jpeg', 1);
+    			    resolve(newSrc);
+        		})
+            }
+            tmpImg.src = this.result; 
+        }
+        reader.readAsDataURL(event.currentTarget.files[0]);
+    })
+};
+
+function uploadFileChange() {
+	uploadFile().then(val => {
+		document.getElementById("showImg").src = val;
+	})
+}
 
 
-function changeOrient(tmpImg, canvas, context, orientation) {
+
+
+util.changeOrient = function(tmpImg, canvas, context, orientation) {
 	 var degree = 0;
 	 var drawWidth = tmpImg.width;
     var drawHeight = tmpImg.height;

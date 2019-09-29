@@ -42,7 +42,7 @@ var imageBoxVue = new Vue({
             event.preventDefault();
             if (event.targetTouches) {
                 if (event.targetTouches.length == 2) {
-                    var len = getDistance(event.targetTouches[0], event.targetTouches[1]);
+                    var len = util.getDistance(event.targetTouches[0], event.targetTouches[1]);
                     cropper.ratio *= len / cropper.state.downLen;
                     cropper.state.downLen = len;
                     util.setBackground();

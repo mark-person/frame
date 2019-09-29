@@ -40,9 +40,10 @@ var imageBoxVue = new Vue({
 			
 			event.stopImmediatePropagation();
             event.preventDefault();
+           
             if (event.targetTouches) {
                 if (event.targetTouches.length == 2) {
-                    var len = getDistance(event.targetTouches[0], event.targetTouches[1]);
+                    var len = util.getDistance(event.targetTouches[0], event.targetTouches[1]);
                     cropper.ratio *= len / cropper.state.downLen;
                     cropper.state.downLen = len;
                     util.setBackground();
@@ -76,14 +77,21 @@ var actionVue = new Vue({
 			document.getElementById("cropCircle").src = util.getCropCircle(value);
 		},
 		uploadChange:function() {
-			var reader = new FileReader();
-	        reader.onload = function(e) {
-	            document.getElementById("cropCircle").src = util.getCropCircle(actionVue.circleColor);
+			uploadFile().then(val => {
+				document.getElementById("cropCircle").src = util.getCropCircle(actionVue.circleColor);
 	            document.getElementById("cropCircle").style.display = "block";
 	            document.getElementById("cropCircleImg").style.display = "none";
-	            cropper = cropbox({imgSrc: e.target.result});
+				
+        		cropper = cropbox({imgSrc:val});
+        	})
+        	
+        	/*
+			var reader = new FileReader();
+	        reader.onload = function(e) {
+	            
+	            
 	        }
-	        reader.readAsDataURL(event.currentTarget.files[0]);
+	        reader.readAsDataURL(event.currentTarget.files[0]);*/
 		},
 		crop:function() {
 			document.getElementById("cropCircle").style.display = "none";
@@ -217,5 +225,86 @@ util.getDistance = function(p1, p2) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+const uploadFile = function() {
+    return new Promise((resolve, reject) => {
+    	var reader = new FileReader();
+        reader.onload = function(e) {
+            // alert(e.target.result);
+            //EXIF js 可以读取图片的元信息  https://github.com/exif-js/exif-js
+            var tmpImg = new Image();
+            
+            var canvas = document.createElement("canvas");
+    		canvas.width = this.width;
+    	    canvas.height = this.height;
+    	    var context = canvas.getContext("2d");
+            
+            tmpImg.onload = function() {
+            	EXIF.getData(this, function() {
+        	        var orient = EXIF.getTag(this, 'Orientation');
+    		        var drawWidth = tmpImg.width;
+    		        var drawHeight = tmpImg.height;
+    		        // iphone不同方向拍摄
+    		        if (orient == 3 || orient == 6 || orient == 8) {
+    		        	var o = util.changeOrient(tmpImg, canvas, context, orient)
+    		        	drawWidth = o.drawWidth;
+    		        	drawHeight = o.drawHeight;
+    		        	context.drawImage(this, 0, 0, drawWidth, drawHeight);
+    		        }
+    		        else {
+    		        	canvas.width = tmpImg.width;
+    		            canvas.height = tmpImg.height;
+    		            context.drawImage(this, 0, 0, drawWidth, drawHeight, 0, 0, drawWidth, drawHeight);
+    		        }
+    			    var newSrc = canvas.toDataURL('image/jpeg', 1);
+    			    resolve(newSrc);
+        		})
+            }
+            tmpImg.src = this.result; 
+        }
+        reader.readAsDataURL(event.currentTarget.files[0]);
+    })
+};
+
+util.changeOrient = function(tmpImg, canvas, context, orientation) {
+	 var degree = 0;
+	 var drawWidth = tmpImg.width;
+   var drawHeight = tmpImg.height;
+   switch(orientation){
+  	//iphone横屏拍摄，此时home键在左侧
+   	 case 3:
+        degree=180;
+        drawWidth=-tmpImg.width;
+        drawHeight=-tmpImg.height;
+        break;
+    //iphone竖屏拍摄，此时home键在下方(正常拿手机的方向)
+    case 6:
+        canvas.width=tmpImg.height;
+        canvas.height=tmpImg.width; 
+        degree=90;
+        drawWidth=tmpImg.width;
+        drawHeight=-tmpImg.height;
+        break;
+    //iphone竖屏拍摄，此时home键在上方
+    case 8:
+        canvas.width=tmpImg.height;
+        canvas.height=tmpImg.width; 
+        degree=270;
+        drawWidth=-tmpImg.width;
+        drawHeight=tmpImg.height;
+        break;
+	}
+  context.rotate(degree*Math.PI/180);
+  return {drawWidth:drawWidth, drawHeight:drawHeight}
+}
 
 
