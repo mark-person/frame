@@ -8,7 +8,7 @@ var cropbox = function(options) {
 
 var imageBoxVue = new Vue({
 	el:'#imageBox',
-	data: {currentBgX:0, currentBgY:0, thumbWidth:'200', thumbHeight:'200', boxWidth:'400', boxHeight:'400', text:{}, text2:{}},
+	data: {currentBgX:0, currentBgY:0, thumbWidth:'200', thumbHeight:'200', boxWidth:'400', boxHeight:'400', textArray:[{}]},
 	methods: {
 		setCurrentBgXY:function() {
 			var bg = document.getElementById("imageBox").style.backgroundPosition.split(' '); 
@@ -70,7 +70,7 @@ var imageBoxVue = new Vue({
 
 var actionVue = new Vue({
 	el:'#actionDiv',
-	data: {circleColor:'blue', text:{value:'text', color:'white', bgColor:'black', x:0, y:0},  text2:{value:'text', color:'white', bgColor:'black', x:0, y:0}},
+	data: {circleColor:'blue', text:{value:'text', color:'white', bgColor:'black', x:0, y:0},  textArray:[{value:'text', color:'white', bgColor:'black', x:0, y:0}]},
 	methods:{
 		circleColorChange:function(value) {
 			document.getElementById("cropCircle").src = util.getCropCircle(value);
@@ -133,10 +133,10 @@ var actionVue = new Vue({
 			util.setBackground();
 		},
 		textOk:function() {
-			imageBoxVue.text = this.text;
+			imageBoxVue.textArray = this.textArray;
 		},
-		textOk2:function() {
-			imageBoxVue.text2 = this.text2;
+		addText:function() {
+			 this.textArray.push({value:'text', color:'white', bgColor:'black', x:0, y:0});
 		}
 	}
 })
