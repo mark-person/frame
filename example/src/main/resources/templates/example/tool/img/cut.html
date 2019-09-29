@@ -42,12 +42,12 @@
 	    </select>
 	    <button type="button" class="v-button-primary" @click="crop()">crop</button>
 	    <button type="button" class="v-button" @click="autoResize()">auto</button>
-	    <!-- <input type="button"  onclick="test()" class="Btnsty_peyton" value="test"> -->
+	    <!-- <input type="button" onclick="test()" class="Btnsty_peyton" value="test"> -->
     </div>
     <div style="display:flex;align-items: center;justify-content:space-around;flex-wrap:wrap">
         <span>字体</span>
         <input v-model="text.value" type="text" class="v-text">
-        <select v-model="text.color" @change="" class="v-select" style="width:3.5rem">
+        <select v-model="text.color" class="v-select" style="width:3.5rem">
             <option v-for="item in TEXT_COLOR_LIST" :value="item.v">{{item.t}}</option>
         </select>
         <select v-model="text.bgColor" class="v-select" style="width:3.5rem">
@@ -65,7 +65,7 @@
         <select v-model="text2.color" class="v-select" style="width:3.5rem">
             <option v-for="item in TEXT_COLOR_LIST" :value="item.v">{{item.t}}</option>
         </select>
-        <select v-model="text2.bgColor" @change="" class="v-select" style="width:3.5rem">
+        <select v-model="text2.bgColor" class="v-select" style="width:3.5rem">
             <option v-for="item in TEXT_COLOR_LIST" :value="item.v">{{item.t}}</option>
         </select>
         <span>字体位置</span>

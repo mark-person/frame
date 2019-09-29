@@ -19,5 +19,13 @@ public class ImgController {
 		return mv;
 	}
 	
+	@RequestMapping("/mobile")
+	public ModelAndView mobile(ModelAndView mv, HttpServletRequest request) {
+		
+		
+		return mv;
+	}
+	
+	
 
 }

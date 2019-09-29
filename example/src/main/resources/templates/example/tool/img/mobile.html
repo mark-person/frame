@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<link th:replace="base/base-fragment::common"/>
+
+<script type="text/javascript" th:src="@{/static/tool/img/exif.min.js}"></script>
+
+<title>TEST_DEMO</title>
+
+
+
+
+</head>
+<body>
+
+<input type="file" id="uploadInput" style="display:none" onchange="uploadFileChange()">
+
+<button class="v-button" onclick="document.getElementById('uploadInput').click()">TEST</button>
+
+
+<img id="showImg">
+
+<script type="text/javascript">
+
+function uploadFileChange() {
+	var reader = new FileReader();
+    reader.onload = function(e) {
+        // alert(e.target.result);
+        //EXIF js 可以读取图片的元信息  https://github.com/exif-js/exif-js
+        var tmpImg = new Image();
+        
+        var canvas = document.createElement("canvas");
+		canvas.width = this.width;
+	    canvas.height = this.height;
+	    var context = canvas.getContext("2d");
+        
+        tmpImg.onload = function() {
+        	EXIF.getData(this, function() {
+    	        var orient = EXIF.getTag(this, 'Orientation');
+		        var drawWidth = tmpImg.width;
+		        var drawHeight = tmpImg.height;
+		        // iphone不同方向拍摄
+		        if (orient == 3 || orient == 6 || orient == 8) {
+		        	var o = changeOrient(tmpImg, canvas, context, orient)
+		        	drawWidth = o.drawWidth;
+		        	drawHeight = o.drawHeight;
+		        	context.drawImage(this, 0, 0, drawWidth, drawHeight);
+		        }
+		        else {
+		        	canvas.width = tmpImg.width;
+		            canvas.height = tmpImg.height;
+		            context.drawImage(this, 0, 0, drawWidth, drawHeight, 0, 0, drawWidth, drawHeight);
+		        }
+			    var newSrc = canvas.toDataURL('image/jpeg', 1);
+			    alert(newSrc);
+    		})
+        }
+        tmpImg.src = this.result;
+        
+        document.getElementById("showImg").src = tmpImg.src;
+    }
+    reader.readAsDataURL(event.currentTarget.files[0]);
+}
+
+
+
+
+function changeOrient(tmpImg, canvas, context, orientation) {
+	 var degree = 0;
+	 var drawWidth = tmpImg.width;
+    var drawHeight = tmpImg.height;
+    switch(orientation){
+   	//iphone横屏拍摄，此时home键在左侧
+    	 case 3:
+         degree=180;
+         drawWidth=-tmpImg.width;
+         drawHeight=-tmpImg.height;
+         break;
+     //iphone竖屏拍摄，此时home键在下方(正常拿手机的方向)
+     case 6:
+         canvas.width=tmpImg.height;
+         canvas.height=tmpImg.width; 
+         degree=90;
+         drawWidth=tmpImg.width;
+         drawHeight=-tmpImg.height;
+         break;
+     //iphone竖屏拍摄，此时home键在上方
+     case 8:
+         canvas.width=tmpImg.height;
+         canvas.height=tmpImg.width; 
+         degree=270;
+         drawWidth=-tmpImg.width;
+         drawHeight=tmpImg.height;
+         break;
+ 	}
+   context.rotate(degree*Math.PI/180);
+   return {drawWidth:drawWidth, drawHeight:drawHeight}
+}
+
+
+
+</script>
+
+
+</body>
+</html>
+
