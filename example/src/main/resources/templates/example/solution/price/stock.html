@@ -1,0 +1,51 @@
+
+
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+
+</head>
+<body>
+
+<div class="v-title">
+	<label class="v-title-label">stock</label>
+</div>
+
+<pre>
+e_sku
+sku_id, sku_stock
+
+常规
+// 锁住多个sku
+select sku_stock from e_sku where sku_id = ? for update
+// 符合则
+update e_sku set sku_stock = sku_stock - n where sku_id = ?
+
+
+方案
+update e_sku set sku_stock = sku_stock - n where sku_id = ? and sku_stock > n
+返回0就是超标, 返回1:成功
+
+// 仅利用mysql的锁机制，承受3万用户一分钟的高访问，产生6万-10万单是可行的
+
+
+
+
+
+</pre>
+
+
+
+
+
+
+
+
+
+</body>
+
+
+</html>

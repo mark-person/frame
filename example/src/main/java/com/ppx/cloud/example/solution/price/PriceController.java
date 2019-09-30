@@ -24,5 +24,36 @@ public class PriceController {
 	}
 	
 	
+	@RequestMapping("/stock")
+	public ModelAndView stock(ModelAndView mv) {
+		
+		
+		
+		
+		
+		
+		
+		return mv;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }
