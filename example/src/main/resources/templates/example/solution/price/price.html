@@ -1,0 +1,49 @@
+
+
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<link th:replace="base/base-fragment::common"/>
+
+</head>
+<body>
+
+<div class="v-title">
+	<label class="v-title-label">4Free1</label>
+</div>
+
+<table class="v-table">
+<tr>
+	<th>sku_id</th>
+	<th>sku_num</th>
+	<th>sku_price</th>
+</tr>
+<tr th:each="item:${list}">
+	<td th:text="${item.sku_id}"></td>
+	<td class="v-right" th:text="${item.sku_num}"></td>
+	<td class="v-right" th:text="${item.sku_price}"></td>
+</tr>
+</table>
+
+<table class="v-table">
+<tr>
+	<th>sku_id</th>
+	<th>sku_num</th>
+	<th>sku_price</th>
+	<th>real_num</th>
+</tr>
+<tr th:each="item:${listCalc}">
+	<td th:text="${item.sku_id}"></td>
+	<td class="v-right" th:text="${item.sku_num}"></td>
+	<td class="v-right" th:text="${item.sku_price}"></td>
+	<td class="v-right" th:text="${item.real_num}"></td>
+</tr>
+</table>
+
+
+</body>
+
+
+</html>
