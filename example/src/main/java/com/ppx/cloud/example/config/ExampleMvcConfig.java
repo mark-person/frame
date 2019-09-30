@@ -19,7 +19,7 @@ import com.ppx.cloud.monitor.contoller.MonitorInterceptor;
 
 
 @Configuration
-public class DemoMvcConfig extends CommonMvcConfig {
+public class ExampleMvcConfig extends CommonMvcConfig {
 	
     @Value("${spring.profiles.active}")
     private String active;
@@ -47,7 +47,7 @@ public class DemoMvcConfig extends CommonMvcConfig {
         super.addResourceHandlers(registry);
         
         // jar路径的上一层
-        ApplicationHome home = new ApplicationHome(DemoMvcConfig.class);
+        ApplicationHome home = new ApplicationHome(ExampleMvcConfig.class);
        
         
         if ("dev".equals(active)) {
