@@ -152,9 +152,8 @@ var passwordModal = base.modal("passwordModal", function(p) {
 
 function editName(item) {
     nameModal.show("修改名称", item, function(p) {
-    	alert(p.userId)
-        axios.post("auth/authUser/updateName", {accountId:p.userId, authName:p.userName}).then(function(res) {
-            passwordModal.hide();
+        axios.post("auth/authUser/updateName", {userId:p.userId, userName:p.userName}).then(function(res) {
+        	nameModal.hide();
             item.userName = p.userName;
         })
     });
