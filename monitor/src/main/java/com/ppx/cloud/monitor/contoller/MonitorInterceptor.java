@@ -20,10 +20,17 @@ public class MonitorInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         // 不监控 /base/... /auth/... /monitor/... 开头的，改成/auto/开头
-        System.out.println("..............URI:" + request.getRequestURI());
+        
+        if (request.getRequestURI().startsWith("/auto/")) {
+            AccessLog accessLog = AccessLog.getInstance(request);
+            TaskThread.setAccessLog(accessLog);
+        }
+        else {
+            TaskThread.setAccessLog(null);
+        }
     	
-    	AccessLog accessLog = AccessLog.getInstance(request);
-    	TaskThread.setAccessLog(accessLog);
+    	
+    	
     	
         return true;
     }
@@ -35,8 +42,10 @@ public class MonitorInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
             throws Exception {
     	AccessLog accessLog = TaskThread.getAccessLog();
-        accessLog.setSpendTime((int)((System.nanoTime() - accessLog.getBeginNanoTime()) / 1e6));
-        AccessQueue.offer(accessLog);
+    	if (accessLog != null)  {
+    	    accessLog.setSpendTime((int)((System.nanoTime() - accessLog.getBeginNanoTime()) / 1e6));
+            AccessQueue.offer(accessLog);
+    	}
     }
   
 }

@@ -26,7 +26,6 @@ public class DemoController {
 		// mv.setViewName("demo/demo/demo");
 		
 		mv.addObject("data", list(new Page(), new Demo()));
-		System.out.println("999911111");
 		
 		// mv.addObject("insertOrUpdate");
 		

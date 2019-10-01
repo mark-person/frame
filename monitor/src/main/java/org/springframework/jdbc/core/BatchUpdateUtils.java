@@ -38,17 +38,17 @@ public abstract class BatchUpdateUtils {
 	public static int[] executeBatchUpdate(
 			String sql, final List<Object[]> batchValues, final int[] columnTypes, JdbcOperations jdbcOperations) {
 		
-		// dengxz
+	    /** @author mark */
+	    long nanoTime = System.nanoTime();
 		AccessLog accessLog = TaskThread.getAccessLog();
-		accessLog.addSqlBeginTime(new Date());
-        long nanoTime = System.nanoTime();
-        
-        if (batchValues.size() > 0) {
-            // 取第一条的参数
-            int sqlIndex = accessLog.getSqlList().size();
-            accessLog.addSqlArg(sqlIndex, batchValues.get(0));
-        }
-        
+		if (accessLog != null) {
+		    accessLog.addSqlBeginTime(new Date());
+	        if (batchValues.size() > 0) {
+	            // 取第一条的参数
+	            int sqlIndex = accessLog.getSqlList().size();
+	            accessLog.addSqlArg(sqlIndex, batchValues.get(0));
+	        }
+		}
         
         int[] r = null;
         r = jdbcOperations.batchUpdate(
@@ -66,9 +66,13 @@ public abstract class BatchUpdateUtils {
                 });
         
         if (r != null) {
-        	accessLog.addSqlCount(r.length);
+            if (accessLog != null) {
+                accessLog.addSqlCount(r.length);
+            }
         }
-        accessLog.addSqlSpendTime((System.nanoTime() - nanoTime) / 1000000);
+        if (accessLog != null) {
+            accessLog.addSqlSpendTime((System.nanoTime() - nanoTime) / 1000000);
+        }
         return r;
 
 		

@@ -360,6 +360,8 @@ public class MonitorUtils {
         String threadMsg = "";
         if (thread != null && thread instanceof TaskThread) {
             AccessLog accessLog = TaskThread.getAccessLog();
+            if (accessLog == null) return "";
+            
             List<String> infoList = AccessLogUtils.getInfoList(accessLog);
             threadMsg = StringUtils.collectionToDelimitedString(infoList, "\n");
         }

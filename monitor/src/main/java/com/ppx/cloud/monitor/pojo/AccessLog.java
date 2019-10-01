@@ -105,16 +105,8 @@ public class AccessLog {
     }
 
     public void setUri(String uri) {
-        // 监控页面的查看不输出
-        if (uri.indexOf("/monitor/") > 0) {
-        	this.uriSeq = -1;
-        	this.uri = null;
-        }
-        else {
-        	this.uriSeq = MonitorCache.getUriSeq(uri);
-            this.uri = this.uriSeq == null ? uri : null;
-        }
-        
+    	this.uriSeq = MonitorCache.getUriSeq(uri);
+        this.uri = this.uriSeq == null ? uri : null;
     }
     
     public Integer getUriSeq() {

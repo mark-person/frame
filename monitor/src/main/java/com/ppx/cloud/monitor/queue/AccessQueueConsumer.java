@@ -59,12 +59,6 @@ public class AccessQueueConsumer {
 				ConsoleUtils.print(a);
 			}
 			
-			/*
-			// 监控页面的查看不输出(异常时输出)
-			if (a.getUriSeq() != null && a.getUriSeq() == -1 && a.getThrowable() == null) {
-				continue;
-			}*/
-			
 			try {
 				logToDb(a, outputImpl);
 			} catch (Throwable e) {

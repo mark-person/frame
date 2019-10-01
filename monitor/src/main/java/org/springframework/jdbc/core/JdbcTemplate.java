@@ -535,15 +535,21 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 			public Integer doInStatement(Statement stmt) throws SQLException {
 				
 				/** @author mark */
+			    int rows = -1;
                 AccessLog accessLog = TaskThread.getAccessLog();
-                TaskThread.getAccessLog().addSql(sql);
-                long nanoTime = System.nanoTime();
-                accessLog.addSqlBeginTime(new Date());
-                
-                int rows = stmt.executeUpdate(sql);
-                
-                accessLog.addSqlSpendTime((System.nanoTime() - nanoTime) / 1000000);
-                TaskThread.getAccessLog().addSqlCount(rows);
+                if (accessLog != null) {
+                    TaskThread.getAccessLog().addSql(sql);
+                    long nanoTime = System.nanoTime();
+                    accessLog.addSqlBeginTime(new Date());
+                    
+                    rows = stmt.executeUpdate(sql);
+                    
+                    accessLog.addSqlSpendTime((System.nanoTime() - nanoTime) / 1000000);
+                    TaskThread.getAccessLog().addSqlCount(rows);
+                }
+                else {
+                    rows = stmt.executeUpdate(sql); 
+                }
                 
                 if (logger.isDebugEnabled()) {
                     logger.debug("SQL update affected " + rows + " rows");

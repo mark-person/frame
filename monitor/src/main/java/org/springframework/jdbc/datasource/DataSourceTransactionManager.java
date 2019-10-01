@@ -269,7 +269,10 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			}
 			
 			/** @author mark */
-            TaskThread.getAccessLog().addTransactionTimes();
+			if (TaskThread.getAccessLog() != null) {
+			    TaskThread.getAccessLog().addTransactionTimes();
+			}
+            
 
 			txObject.getConnectionHolder().setSynchronizedWithTransaction(true);
 			con = txObject.getConnectionHolder().getConnection();

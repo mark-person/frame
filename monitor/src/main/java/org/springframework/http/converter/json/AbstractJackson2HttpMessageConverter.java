@@ -244,15 +244,21 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
             }
             
             /** @author mark 存起来，异常时打印到error日志，非debug不进队列 */
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = inputMessage.getBody().read(buffer)) > -1) {
-                baos.write(buffer, 0, len);
+            if (TaskThread.getAccessLog() != null) {
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = inputMessage.getBody().read(buffer)) > -1) {
+                    baos.write(buffer, 0, len);
+                }
+                baos.flush();
+                InputStream copyInputStream = new ByteArrayInputStream(baos.toByteArray()); 
+                TaskThread.getAccessLog().setInJson(baos.toString());
+                return this.objectMapper.readValue(copyInputStream, javaType);
             }
-            baos.flush();
-            InputStream copyInputStream = new ByteArrayInputStream(baos.toByteArray());             
-            TaskThread.getAccessLog().setInJson(baos.toString());
-            return this.objectMapper.readValue(copyInputStream, javaType);
+            else {
+                return this.objectMapper.readValue(inputMessage.getBody(), javaType);
+            }
+            
         }
 		catch (InvalidDefinitionException ex) {
 			throw new HttpMessageConversionException("Type definition error: " + ex.getType(), ex);
