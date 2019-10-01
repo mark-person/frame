@@ -10,8 +10,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-
 import com.ppx.cloud.base.util.ApplicationUtils;
 import com.ppx.cloud.monitor.config.MonitorThresholdProperties;
 import com.ppx.cloud.monitor.output.OutputImpl;
