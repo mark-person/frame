@@ -19,6 +19,8 @@ public class MonitorInterceptor implements HandlerInterceptor {
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
+        // 不监控 /base/... /auth/... /monitor/... 开头的，改成/auto/开头
+        System.out.println("..............URI:" + request.getRequestURI());
     	
     	AccessLog accessLog = AccessLog.getInstance(request);
     	TaskThread.setAccessLog(accessLog);
