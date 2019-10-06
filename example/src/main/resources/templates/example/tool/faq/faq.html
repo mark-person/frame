@@ -9,7 +9,7 @@
 <div id="page" v-cloak>
 	<div class="v-title">
 		<label class="v-title-label">我是标题</label>
-		<button class="v-button" onclick="add()" th:if="${faqAction}">新增</button>
+		<button class="v-button" onclick="add()">新增</button>
 		<input type="text" class="v-text" v-model="p.faqTitle" maxlength="32">
 		<button class="v-button" @click="goto()">搜索</button>
 	</div>

@@ -80,7 +80,6 @@
 </div>
 
 <script type="text/javascript" th:inline="javascript">
-base.initLoading();
 // 截图，用Ctrl+V
 document.body.addEventListener('paste', function(e) {
 	if (!e.clipboardData) return;
@@ -210,18 +209,13 @@ var form = new Vue({
 
 function writeToLocal(force) {
 	
-    loading.show();
     axios.post("auto/faq/writeToLocal", {id:form.faqId, force:force}).then(function(r) {
         if (r.code === 20000) {
         	if (confirm(r.msg + ",是否覆盖？")) {
         		writeToLocal(true);
         	}
-        	else {
-        		loading.hide();
-        	}
         }
         else if (r.code === 0) {
-        	loading.hide();
             alert("成功");
         }
     })
@@ -233,9 +227,7 @@ function ok() {
     var isInsert = form.faqId == 0;
     var url = (isInsert ? "auto/faq/insert" : "auto/faq/update");
     var name = (isInsert ? "新增" : "修改");
-    loading.show();
     axios.post(url, form._data).then(function(r) {
-    	loading.hide();
         if (r.code !== 0) return;
         
         if (isInsert) form.faqId = r.faqId;
