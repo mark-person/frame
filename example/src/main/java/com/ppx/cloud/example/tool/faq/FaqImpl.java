@@ -111,7 +111,7 @@ public class FaqImpl extends MyDaoSupport {
         
         Faq faq = get(id);
         
-        Path mdPath = Paths.get("E:\\eclipse-workspace-2019-06-R\\frame\\doc\\faq-" + VERSION);
+        Path mdPath = Paths.get("E:\\eclipse-workspace-2019-09-R\\frame\\doc\\faq-" + VERSION);
         Path imgPath = Paths.get(mdPath.toString() + "/" + "img");
         if (!Files.exists(mdPath)) {
             return ControllerReturn.of(20000, "文件夹不存在:" + mdPath);
