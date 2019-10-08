@@ -5,6 +5,9 @@
 <meta charset="utf-8">
 <link th:replace="base/mobile-fragment::common"/>
 
+<script type="text/javascript" th:src="@{/static/common/base/base.js}"></script>
+<link rel="stylesheet" th:href="@{/static/common/base/base.css}">
+
 </head>
 <body>
 
@@ -40,7 +43,7 @@ const Bar = { template: '<div>bar</div>' }
 //或者，只是一个组件配置对象。
 //我们晚点再讨论嵌套路由。
 const routes = [
-{ path: '/foo', component: Foo },
+{ path: '/foo', component: httpVueLoader(baseURL + 'static/router/test.vue')},
 { path: '/bar', component: Bar }
 ]
 
