@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +34,15 @@ import com.ppx.cloud.base.jdbc.page.Page;
  */
 public class MyDaoSupport extends JdbcDaoSupport {
 
-	@Autowired
-	protected void setMyJdbcTemplate(JdbcTemplate jdbcTemplate) {
-		super.setJdbcTemplate(jdbcTemplate);
-	}
+//	@Autowired
+//	protected void setMyJdbcTemplate(JdbcTemplate jdbcTemplate) {
+//		super.setJdbcTemplate(jdbcTemplate);
+//	}
+	
+	@Resource(name="dataSource")
+    public void setDs(DataSource dataSource){
+        setDataSource(dataSource);
+    }
 
 	/**
 	 * 插入一个对象进数据库

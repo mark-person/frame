@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.ppx.cloud.base.jdbc.MyCriteria;
-import com.ppx.cloud.base.jdbc.MyDaoSupport;
 import com.ppx.cloud.base.jdbc.page.Page;
 import com.ppx.cloud.base.mvc.ObjectMapperCustomer;
+import com.ppx.cloud.monitor.output.MonitorDaoSupport;
 
 @Service
-public class ConsoleImpl extends MyDaoSupport {
+public class ConsoleImpl extends MonitorDaoSupport {
     
     public List<Map<String, Object>> listIndexService() {
         String sql = "select * from monitor_service where service_display = 1 order by service_ordinal";

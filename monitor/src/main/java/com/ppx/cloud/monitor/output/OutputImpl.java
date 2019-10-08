@@ -34,7 +34,7 @@ import com.ppx.cloud.monitor.util.MonitorUtils;
  * @date 2019年9月16日
  */
 @Service
-public class OutputImpl extends MyDaoSupport {
+public class OutputImpl extends MonitorDaoSupport {
 	
 	private static Logger logger = LoggerFactory.getLogger(OutputImpl.class);
 
