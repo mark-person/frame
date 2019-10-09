@@ -1,33 +1,46 @@
 
 
+
 <template>
+
 <div>
 
 new Test()
 
-
+<button @click="xxx()">test...</button>
 
 
 
 </div>
 
 
-
-<div id="modal" v-cloak>
-<modal v-if="modal.showModal" :modal="modal">
-test001
-</modal>
-</div>
 
 
 </template>
 
-
-
 <script>
-var modal = base.modal("modal");
+
+module.exports =  {
+    name: "app",
+    data:function(){
+        return {
+            name:'tom'
+        }
+    },
+    methods:{
+        xxx:function(){
+            var testModal = base.modal("testModal");
+			testModal.show('');
+        }
+    }
+}
+
+//var testModal = base.modal("testModal");
+//testModal.show('');
+
+
 // alert(modal);
-modal.show('新增',  {});
+
 
 // base.showLoading();
 // alert(1);
