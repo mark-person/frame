@@ -21,7 +21,7 @@ public class MonitorDataSourceConfig  {
     public DataSource dataSource() {
         
         HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         dataSource.setJdbcUrl(env.getProperty("spring.datasource.url"));
         dataSource.setUsername(env.getProperty("spring.datasource.username"));
         dataSource.setPassword(env.getProperty("spring.datasource.password"));
@@ -44,7 +44,7 @@ public class MonitorDataSourceConfig  {
     public DataSource monitorDataSource() {
         
         HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         dataSource.setJdbcUrl(env.getProperty("monitor.spring.datasource.url"));
         dataSource.setUsername(env.getProperty("monitor.spring.datasource.username"));
         dataSource.setPassword(env.getProperty("monitor.spring.datasource.password"));
