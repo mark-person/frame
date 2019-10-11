@@ -15,6 +15,12 @@ public class RouterController {
 		return mv;
 	}
 	
+	@RequestMapping("/home")
+	public ModelAndView home(ModelAndView mv) {
+		
+		return mv;
+	}
+	
 	
 
 	
