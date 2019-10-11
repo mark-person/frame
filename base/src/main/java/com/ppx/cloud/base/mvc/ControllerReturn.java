@@ -24,17 +24,17 @@ import com.ppx.cloud.base.jdbc.page.Page;
  */
 public class ControllerReturn {
 	
-	private static final String CODE_TITLE = "code";
+	protected static final String CODE_TITLE = "code";
 	
-	private static final String MSG_TITLE = "msg";
+	protected static final String MSG_TITLE = "msg";
 	
-	private static Map<String, Object> SUCCESS = new LinkedHashMap<String, Object>(2);
+	protected static Map<String, Object> SUCCESS = new LinkedHashMap<String, Object>(2);
 	static {
 		SUCCESS.put(CODE_TITLE, 0);
 		SUCCESS.put(MSG_TITLE, "SUCCESS");
 	}
 	
-	private static Map<String, Object> ERROR = new LinkedHashMap<String, Object>(2);
+	protected static Map<String, Object> ERROR = new LinkedHashMap<String, Object>(2);
 	static {
 		ERROR.put(CODE_TITLE, 50000);
 		ERROR.put(MSG_TITLE, "ERROR");
@@ -176,6 +176,8 @@ public class ControllerReturn {
     public static void errorHtml(HttpServletResponse response, int code, String msg) {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html");
+        // 在bean没有加get和set时，报HttpMessageConversionException: 和 getOutputStream() has already been called for this response
+        response.reset();
         try (PrintWriter printWriter = response.getWriter()) {
             printWriter.write("System busy[" + code + "]" + msg);
         } catch (Exception e) {

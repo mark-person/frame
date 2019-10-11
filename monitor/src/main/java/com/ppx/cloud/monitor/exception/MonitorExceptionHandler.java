@@ -34,6 +34,8 @@ public class MonitorExceptionHandler extends CustomExceptionHandler {
         String marker = (System.currentTimeMillis() + "" + (int)(Math.random() * 1000));
         // 传参marker到CustomExceptionHandler
         request.setAttribute("marker", marker);
+     
+        
         super.resolveException(request, response, object, exception);
         
         AccessLog accessLog = TaskThread.getAccessLog();

@@ -9,6 +9,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
 <link th:replace="base/mobile-fragment::common"/>
 
+<script type="text/javascript" th:src="@{/static/tool/jquery.min-3.3.1.js}"></script>
+
+
 
 <style>
 html {font-size:16px}
@@ -48,6 +51,12 @@ body {margin-top:2.75rem;margin-bottom:3rem;font-size:0.865rem;}
 	<div class="know-title">title</div>
 </div>
 
+<div class="know-item-div" onclick="view()">
+	<div class="know-img-div">
+		<img style="border-radius:0.4rem" src="" class="know-img">
+	</div>
+	<div class="know-title">title</div>
+</div>
 
 <div class="know-item-div" onclick="view()">
 	<div class="know-img-div">
@@ -56,24 +65,42 @@ body {margin-top:2.75rem;margin-bottom:3rem;font-size:0.865rem;}
 	<div class="know-title">title</div>
 </div>
 
+<div class="know-item-div" onclick="view()">
+	<div class="know-img-div">
+		<img style="border-radius:0.4rem" src="" class="know-img">
+	</div>
+	<div class="know-title">title</div>
+</div>
+
+<div class="know-item-div" onclick="view()">
+	<div class="know-img-div">
+		<img style="border-radius:0.4rem" src="" class="know-img">
+	</div>
+	<div class="know-title">title</div>
+</div>
+
+<div class="know-item-div" onclick="view()">
+	<div class="know-img-div">
+		<img style="border-radius:0.4rem" src="" class="know-img">
+	</div>
+	<div class="know-title">title</div>
+</div>
+<div class="know-item-div" onclick="view()">
+	<div class="know-img-div">
+		<img style="border-radius:0.4rem" src="" class="know-img">
+	</div>
+	<div class="know-title">title</div>
+</div>
+<div class="know-item-div" onclick="view()">
+	<div class="know-img-div">
+		<img style="border-radius:0.4rem" src="" class="know-img">
+	</div>
+	<div class="know-title">title</div>
 </div>
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</div>
 
 
 
@@ -102,6 +129,72 @@ body {margin-top:2.75rem;margin-bottom:3rem;font-size:0.865rem;}
 </div>
 </div>
 <script type="text/javascript" th:inline="javascript">
+
+
+
+// alert(document.body.clientHeight + "||" + window.innerHeight);
+
+var pageHasMore = true;
+var currentPageNumber = 1;
+window.onscroll = function(e) {
+	var e = e || window.event;
+	var scrolltop = document.documentElement.scrollTop || document.body.scrollTop;
+	
+	// document.body.clientHeight = $(document).height() - 4;
+	// $(window).height() = window.innerHeight
+	
+	if (scrolltop + document.body.clientHeight >= window.innerHeight - 50) {
+		if (pageHasMore) {
+			pageHasMore = false;
+			alert(1)
+			setTimeout(function() {
+				pageHasMore = true;
+			}, 1000);
+		}
+	}
+	
+	//var box = document.getElementById('box');
+	//box.style.top = scrolltop + 'px';
+	//console.log(scrolltop);
+}
+
+/*
+var pageHasMore = true;
+var currentPageNumber = 1;
+$(window).scroll(function() {
+    if ($(this).scrollTop() + $(document).height() >= $(this).height() - 50) {
+    	if (pageHasMore) {
+    		pageHasMore = false;
+    		currentPageNumber++;
+    		$("#pageMsg div").hide();
+    		$("#pageLoading").show();
+    		queryPage(currentPageNumber);
+    	}
+    }
+});
+function queryPage(pageNumber) {
+	$.post(controllerPath + searchMethod, getQueryString(pageNumber), function(r) {
+		if (pageNumber == 1) {
+			currentPageNumber = 1;
+			$("#knowDiv").html(template("itemTemplate", r));
+		}
+		else {
+			$("#knowDiv").append(template("itemTemplate", r));
+		}
+		
+		$("#pageMsg div").hide();
+		if (r.page.pageSize * r.page.pageNumber < r.page.totalRows) {
+			pageHasMore = true;
+			$("#pageMore").show();
+		}
+		else {
+			$("#pageEnd").show();
+		}
+	});
+}
+*/
+
+
 
 </script>
 </div>
