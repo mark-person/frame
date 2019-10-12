@@ -14,11 +14,15 @@ public class RouterImpl extends MobileDaoSupport {
 
 	public List<Test> list(MPage page) {
 		
+		System.out.println("----------------page.getPageNumber():" + page.getPageNumber());
+		
 		var c = createCriteria("where").addAnd("t.test_name = ?", null);
 		
 		var cSql = new StringBuilder("select count(*) from test t").append(c);
 		var qSql = new StringBuilder("select * from test t").append(c);
 		List<Test> list = queryMPage(Test.class, page, cSql, qSql, c.getParaList());
+		
+		
 		
 		return list;
 	}
