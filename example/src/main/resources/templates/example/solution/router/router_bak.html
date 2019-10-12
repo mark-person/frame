@@ -1,53 +1,30 @@
 
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
 <link th:replace="base/mobile-fragment::common"/>
 
-</head>
+<script type="text/javascript" th:src="@{/static/common/base/base.js}"></script>
+<link rel="stylesheet" th:href="@{/static/common/base/base.css}">
 
+</head>
 <body>
 
+
 <div id="app">
-
-<div>
-<router-view></router-view>
+  <h1>Hello App!</h1>
+  <p>
+    <!-- 使用 router-link 组件来导航. -->
+    <!-- 通过传入 `to` 属性指定链接. -->
+    <!-- <router-link> 默认会被渲染成一个 `<a>` 标签 -->
+    <router-link to="/foo">Go to Foo</router-link>
+    <router-link to="/bar">Go to Bar</router-link>
+  </p>
+  <!-- 路由出口 -->
+  <!-- 路由匹配到的组件将渲染在这里 -->
+  <router-view></router-view>
 </div>
-
-
-
-
-
-
-<div>
-<style type="text/css">
-.main-menu {position:fixed;bottom: 0; background-color:#f0f0f0;width:25.875rem;;z-index:9999}
-.main-div {display:flex;justify-content:space-between; padding:0.3rem 0.8rem 0.1rem 0.8rem;}
-.main-item {text-align: center;color:gray;cursor:pointer;font-size: 0.815rem}
-.main-item div {padding:-0.2rem;margin:0rem}
-.main-activtiy {color:orange;}
-</style>
-<div class="main-menu" style="display:">
-<div class="main-div">
-	<div class="main-item" id="home" onclick="gotoPage(this);">
-		<div class="fa fa-home"></div><div><router-link to="/foo">Home</router-link></div>
-	</div>
-	<div class="main-item" id="subject" onclick="gotoPage(this)">
-		<div class="fa fa-asterisk"></div><div><router-link to="/bar">Bar</router-link></div>
-	</div>
-	<div class="main-item" id="my" onclick="gotoPage(this)">
-		<div class="fa fa-user-circle"></div><div>My</div>
-	</div>
-</div>
-</div>
-</div>
-
-</div>
-
-
-
 
 
 

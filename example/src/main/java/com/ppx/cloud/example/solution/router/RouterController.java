@@ -37,11 +37,7 @@ public class RouterController {
 	public Map<String, Object> test(MPage page) {
 		System.out.println("9999999999:" + page.getPageNumber());
 		
-		try {
-			Thread.sleep(1000);
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+		
 		
 		List<Test> list = impl.list(page);
 		return MobileReturn.page(page, list);
