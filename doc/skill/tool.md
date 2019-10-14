@@ -17,3 +17,5 @@
 ### ProtoBuf 之前在网络通信和通用数据交换等应用场景中经常使用的技术是 JSON 或 XML,而在最近的开发中接触到了 Google 的 ProtoBuf
 
 
+Spring-batch学习总结（2）—Job,Flow创建及应用，多线程并发，决策器，监听器，参数
+
