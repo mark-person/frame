@@ -29,7 +29,6 @@ public class DemoController {
 		
 		// mv.addObject("insertOrUpdate");
 		
-		impl.test();
 		
 		return mv;
 	}
@@ -63,12 +62,16 @@ public class DemoController {
         return impl.update(pojo);
     }
     
-    public Map<?, ?> get(@RequestParam Integer id) {
+    public Map<String, Object> get(@RequestParam Integer id) {
         return ControllerReturn.of("pojo", impl.get(id));
     }
 
-    public Map<?, ?> delete(@RequestParam Integer id) {
+    public Map<String, Object> delete(@RequestParam Integer id) {
         return impl.delete(id);
     }
 
+    
+    public Map<String, Object> test() {
+        return ControllerReturn.of("list", impl.test());
+    }
 }

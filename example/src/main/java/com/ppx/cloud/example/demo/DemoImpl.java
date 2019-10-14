@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -75,8 +76,11 @@ public class DemoImpl extends MyDaoSupport {
     }
     
     
-    public void test() {
-    	String sql = "{CALL proc_test_data_check(?)}";
+    public List<Map<String, Object>> test() {
+    	
+    	List<Map<String, Object>> newReturnList = new ArrayList<Map<String, Object>>();
+    	
+    	String sql = "{CALL proc_test_data_check(?, ?)}";
     	
     	
     	ResultSet rs = null;
@@ -84,16 +88,10 @@ public class DemoImpl extends MyDaoSupport {
     			 CallableStatement cs = conn.prepareCall(sql);) {
     		
     		cs.setString(1, "tech");
-           
-    		
-    				
+    		cs.setInt(2, 0);
     		
             boolean hadResults = cs.execute();
-            int i = 0;
             
-            
-            List<Map<String, Object>> newReturnList = new ArrayList<Map<String, Object>>();
-             
             Set<String> columnSet = new HashSet<String>();
             
             if (hadResults) {
@@ -104,18 +102,17 @@ public class DemoImpl extends MyDaoSupport {
     			}  
             }
             
-            
             while (hadResults) {
                 rs = cs.getResultSet();
                 while (rs != null && rs.next()) {
                 	
+                	Map<String, Object> map = new HashMap<String, Object>();
                 	for (String col : columnSet) {
                 		Object obj = rs.getObject(col);
                 		obj = obj == null ? "" : obj;
-                		System.out.println("col:" + obj);
+                		map.put(col, obj);
         			}
-                	
-                    
+                	newReturnList.add(map);
                 }
                 hadResults = cs.getMoreResults();
             }
@@ -129,6 +126,7 @@ public class DemoImpl extends MyDaoSupport {
 				try {rs.close();} catch (Exception e) {}
 			}
 		}
+    	return newReturnList;
     	
     }
 
