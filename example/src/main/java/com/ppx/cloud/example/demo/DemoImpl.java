@@ -1,7 +1,14 @@
 package com.ppx.cloud.example.demo;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Service;
@@ -65,6 +72,64 @@ public class DemoImpl extends MyDaoSupport {
     public Map<String, Object> delete(Integer id) {
         getJdbcTemplate().update("delete from core_demo where demo_id = ?", id);
         return ControllerReturn.of();
+    }
+    
+    
+    public void test() {
+    	String sql = "{CALL proc_test_data_check(?)}";
+    	
+    	
+    	ResultSet rs = null;
+    	try (Connection conn = getJdbcTemplate().getDataSource().getConnection();
+    			 CallableStatement cs = conn.prepareCall(sql);) {
+    		
+    		cs.setString(1, "tech");
+           
+    		
+    				
+    		
+            boolean hadResults = cs.execute();
+            int i = 0;
+            
+            
+            List<Map<String, Object>> newReturnList = new ArrayList<Map<String, Object>>();
+             
+            Set<String> columnSet = new HashSet<String>();
+            
+            if (hadResults) {
+            	rs = cs.getResultSet();
+            	ResultSetMetaData rsmd = rs.getMetaData();
+        		for (int j = 0; rsmd != null && j < rsmd.getColumnCount(); j++) {
+    				columnSet.add(rsmd.getColumnName(j + 1));
+    			}  
+            }
+            
+            
+            while (hadResults) {
+                rs = cs.getResultSet();
+                while (rs != null && rs.next()) {
+                	
+                	for (String col : columnSet) {
+                		Object obj = rs.getObject(col);
+                		obj = obj == null ? "" : obj;
+                		System.out.println("col:" + obj);
+        			}
+                	
+                    
+                }
+                hadResults = cs.getMoreResults();
+            }
+            
+		}
+    	catch (Exception e) {
+			e.printStackTrace();
+		}
+    	finally {
+			if (rs != null) {
+				try {rs.close();} catch (Exception e) {}
+			}
+		}
+    	
     }
 
 }

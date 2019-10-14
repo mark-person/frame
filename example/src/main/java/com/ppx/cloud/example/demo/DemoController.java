@@ -29,6 +29,8 @@ public class DemoController {
 		
 		// mv.addObject("insertOrUpdate");
 		
+		impl.test();
+		
 		return mv;
 	}
 	
