@@ -1,7 +1,8 @@
 
 
 
-
+ListObjects>with incoming references
+ 表示的是 当前查看的对象，被外部应用
 
 Memory Analyzer 1.6.1
 The Eclipse Memory Analyzer is a fast and feature-rish Java heap
