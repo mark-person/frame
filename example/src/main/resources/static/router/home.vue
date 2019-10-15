@@ -1,11 +1,8 @@
 
-
-
 <template>
 
-
 <div id="pageDiv">
-	<div class="commodity-div" style="border:1px solid #ddd;margin:-2px;">
+	<div class="commodity-div">
 		<div class="commodity-item-div" @click="view()" v-for="item in list" v-cloak>
 			<div class="commodity-img-div">
 				<img style="border-radius:0.4rem" src="" class="commodity-img">
@@ -19,8 +16,6 @@
 		<div id="pageEnd" v-if="pageEnd"><p>-- 暂时就这么多了 --</p></div>
 	</div>
 </div>
-
-
 
 
 
