@@ -45,7 +45,7 @@ window.onscroll = function(e) {
 			pageDiv.pageEnd = false;
 			pageDiv.pageLoading = true;
 			
-			axios.post("base/router/test", {pageNumber:currentPageNumber}).then(function(res) {
+			axios.post("auto/router/test", {pageNumber:currentPageNumber}).then(function(res) {
 				
 				if (currentPageNumber == 1) {
 					pageDiv.list = res.list;
@@ -87,7 +87,7 @@ module.exports =  {
     },
     created:function() {
     	thisSelf = this;
-    	axios.post("base/router/test", {pageNumber:1}).then(function(res) {
+    	axios.post("auto/router/test", {pageNumber:1}).then(function(res) {
 			thisSelf.list = res.list;
 		});
     }

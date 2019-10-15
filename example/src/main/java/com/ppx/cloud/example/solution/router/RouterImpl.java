@@ -14,8 +14,6 @@ public class RouterImpl extends MobileDaoSupport {
 
 	public List<Test> list(MPage page) {
 		
-		System.out.println("----------------page.getPageNumber():" + page.getPageNumber());
-		
 		var c = createCriteria("where").addAnd("t.test_name = ?", null);
 		
 		var cSql = new StringBuilder("select count(*) from test t").append(c);

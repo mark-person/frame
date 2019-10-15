@@ -165,7 +165,7 @@ public class AccessAnalysisUtils {
      */
     public static String checkOutJson(String json) {
         if (!StringUtils.isEmpty(json)) {
-            if (json.indexOf("msg") < 0 || json.indexOf("result") < 0) {
+            if (!json.contains("code") || !json.contains("msg")) {
                 return "[中]返回json格式不规范";
             }
         }
