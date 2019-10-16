@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.ppx.cloud.base.mobile.MPage;
@@ -12,16 +14,21 @@ import com.ppx.cloud.base.mobile.MobileReturn;
 
 
 @Controller
+
+@RequestMapping("base/router")
 public class RouterController {
 	
 	@Autowired
 	private RouterImpl impl;
 	
+	@RequestMapping("/router")
 	public ModelAndView router(ModelAndView mv) {
 		return mv;
 	}
 	
 	
+	@RequestMapping("/test")
+	@ResponseBody
 	public Map<String, Object> test(MPage page) {
 		
 		List<Test> list = impl.list(page);

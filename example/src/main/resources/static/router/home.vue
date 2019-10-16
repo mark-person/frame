@@ -10,7 +10,12 @@
 			<div class="commodity-title">{{item.testName}}</div>
 		</div>
 	</div>
+	
+	
+	
 	<div id="pageMsg" v-cloak>
+		<div v-if="list.length == 0">0 row</div>
+	
 		<div id="pageMore" v-if="pageMore"><p>-- 上拉加载更多 --</p></div>
 		<div id="pageLoading" v-if="pageLoading"><p>-- 加载中... --</p></div>
 		<div id="pageEnd" v-if="pageEnd"><p>-- 暂时就这么多了 --</p></div>
@@ -39,7 +44,7 @@ window.onscroll = function(e) {
 			pageDiv.pageEnd = false;
 			pageDiv.pageLoading = true;
 			
-			axios.post("auto/router/test", {pageNumber:currentPageNumber}).then(function(res) {
+			axios.post("base/router/test", {pageNumber:currentPageNumber}).then(function(res) {
 				
 				if (currentPageNumber == 1) {
 					pageDiv.list = res.list;
@@ -81,7 +86,7 @@ module.exports =  {
     },
     created:function() {
     	thisSelf = this;
-    	axios.post("auto/router/test", {pageNumber:1}).then(function(res) {
+    	axios.post("base/router/test", {pageNumber:1}).then(function(res) {
 			thisSelf.list = res.list;
 		});
     }

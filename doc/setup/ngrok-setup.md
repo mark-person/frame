@@ -1,5 +1,11 @@
 
 
+# 云服务器启动ngrok
+cd /home/ppx/ngrok/ngrok/
+nohup ./bin/ngrokd -domain="ppx123.xyz" -httpAddr=":80" -httpsAddr=":443" -tunnelAddr=":8083" > out.txt 2>&1 &
+
+
+
 # NGROK安装(内网穿透)
 * 需求:作为一个Web开发者，我们有时候会需要临时地将一个本地的Web网站部署到外网，以供他人体验评价或协助调试等等
 * 解决方案:ngrok + 云服务器，自己搭配
