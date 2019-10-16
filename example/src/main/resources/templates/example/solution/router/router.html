@@ -38,6 +38,8 @@ base.hideLoading = function() {}
 <router-link to="/home" id="home">home</router-link>
 <router-link to="/subject" id="subject">subject</router-link>
 <router-link to="/my" id="my">my</router-link>
+
+<router-link to="/view" id="view">view</router-link>
 </div>
 
 </div>
@@ -50,6 +52,14 @@ base.hideLoading = function() {}
 <script>
 function gotoPage(id) {
 	document.getElementById(id).click();
+}
+
+function test() {
+	document.getElementById("view").click();
+}
+
+function goBack() {
+	router.back(-1);
 }
 </script>
 
@@ -94,10 +104,12 @@ const Bar = { template: '<div>bar</div>' }
 //通过 Vue.extend() 创建的组件构造器，
 //或者，只是一个组件配置对象。
 //我们晚点再讨论嵌套路由。
-const routes = [
+routes = [
 {path:'/home', component: httpVueLoader(baseURL + 'static/router/home.vue')},
 {path:'/subject', component: httpVueLoader(baseURL + 'static/router/subject.vue')},
-{path:'/my', component: httpVueLoader(baseURL + 'static/router/my.vue')}
+{path:'/my', component: httpVueLoader(baseURL + 'static/router/my.vue')},
+
+{path:'/view', component: httpVueLoader(baseURL + 'static/router/view.vue')}
 ]
 
 //3. 创建 router 实例，然后传 `routes` 配置
