@@ -23,7 +23,6 @@
 <script>
 
 
-alert(1);
 window.onscroll = function(e) {
 	base.pageScroll(e, "base/router/test");
 }

@@ -35,8 +35,6 @@ axios.interceptors.response.use(function(res) {
 var base = {};
 
 
-
-
 base.pageScroll = function(e, uri) {
 	var e = e || window.event;
 	var scrolltop = document.documentElement.scrollTop || document.body.scrollTop;
