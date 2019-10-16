@@ -14,7 +14,7 @@ public class RouterImpl extends MobileDaoSupport {
 
 	public List<Test> list(MPage page) {
 		
-		var c = createCriteria("where").addAnd("t.test_name = ?", null);
+		var c = createCriteria("where").addAnd("t.test_name like ?", null);
 		
 		var cSql = new StringBuilder("select count(*) from test t").append(c);
 		var qSql = new StringBuilder("select * from test t").append(c);

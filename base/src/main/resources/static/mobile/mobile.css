@@ -3,7 +3,7 @@
 html {font-size:16px}
 body::-webkit-scrollbar {display: none;}
 body {font-size:0.875rem;margin:0 auto 0 auto;width:25.875rem;}
-[v-cloak] {display: none;
+[v-cloak] {display: none;}
 
 
 /* modal */
