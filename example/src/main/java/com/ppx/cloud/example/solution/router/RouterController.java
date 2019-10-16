@@ -15,20 +15,16 @@ import com.ppx.cloud.base.mobile.MobileReturn;
 
 @Controller
 
-@RequestMapping("base/router")
 public class RouterController {
 	
 	@Autowired
 	private RouterImpl impl;
 	
-	@RequestMapping("/router")
 	public ModelAndView router(ModelAndView mv) {
 		return mv;
 	}
 	
 	
-	@RequestMapping("/test")
-	@ResponseBody
 	public Map<String, Object> test(MPage page) {
 		
 		List<Test> list = impl.list(page);

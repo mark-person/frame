@@ -1,5 +1,6 @@
 
 <template>
+<div>
 
 <div class="commodity-div">
 	<div class="commodity-item-div" @click="view()" v-for="item in list" v-cloak>
@@ -10,35 +11,33 @@
 	</div>
 </div>
 
-<div v-cloak>
+<div class="page-div" v-cloak>
 	<div v-if="page.noData">0 row</div>
-
 	<div v-if="page.more"><p>-- 上拉加载更多 --</p></div>
 	<div v-if="page.loading"><p>-- 加载中... --</p></div>
-	<div v-if="page.end"><p>-- 暂时就这么多了 --</p></div>
+	<div v-if="page.end"><p>-- 暂时就这么多了 --</p></div
 </div>
 
+<div>
 </template>
 
 <script>
 
+var pageUrl = "auto/router/test";
 
-window.onscroll = function(e) {
-	base.pageScroll(e, "base/router/test");
-}
+window.onscroll = function(e) {base.pageScroll(e, pageUrl);}
 
 module.exports =  {
  	name: "app",
-	data:function() {
-        return {list:[], page:{more:false, loading:false, end:false, noData:false, hasMore:true, currentNumber:1}}
-    },
+	data:function() { return {list:[], page:base.page}},
     methods:{
-        xxx:function() {
+        view:function() {
+        	
         }
     },
     created:function() {
     	thisSelf = this;
-    	axios.post("base/router/test", {pageNumber:1}).then(function(res) {
+    	axios.post(pageUrl, {pageNumber:1}).then(function(res) {
 			thisSelf.list = res.list;
 			thisSelf.page.noData = (res.list.length == 0);
 		});

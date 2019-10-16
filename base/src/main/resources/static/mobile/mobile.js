@@ -34,12 +34,10 @@ axios.interceptors.response.use(function(res) {
 
 var base = {};
 
+base.page = {more:false, loading:false, end:false, noData:false, hasMore:true, currentNumber:1};
 
 base.pageScroll = function(e, uri) {
-	var e = e || window.event;
-	var scrolltop = document.documentElement.scrollTop || document.body.scrollTop;
-	
-	if (scrolltop + document.body.clientHeight >= window.innerHeight - 50) {
+	if (_getScrollTop() + _getWindowHeight() > _getScrollHeight() - 50) {
 		if (!thisSelf.page.hasMore) return;
 		
 		thisSelf.page.hasMore = false;
@@ -66,4 +64,47 @@ base.pageScroll = function(e, uri) {
 	    })
 	}
 }
+
+
+
+
+
+
+// 滚动条在Y轴上的滚动距离
+function _getScrollTop(){
+　　var scrollTop = 0, bodyScrollTop = 0, documentScrollTop = 0;
+　　if (document.body) {
+　　　　bodyScrollTop = document.body.scrollTop;
+　　}
+　　if (document.documentElement) {
+　　　　documentScrollTop = document.documentElement.scrollTop;
+　　}
+　　scrollTop = (bodyScrollTop - documentScrollTop > 0) ? bodyScrollTop : documentScrollTop;
+　　return scrollTop;
+}
+ 
+// 文档的总高度
+function _getScrollHeight(){
+　　var scrollHeight = 0, bodyScrollHeight = 0, documentScrollHeight = 0;
+　　if (document.body) {
+　　　　bodyScrollHeight = document.body.scrollHeight;
+　　}
+　　if (document.documentElement) {
+　　　　documentScrollHeight = document.documentElement.scrollHeight;
+　　}
+　　scrollHeight = (bodyScrollHeight - documentScrollHeight > 0) ? bodyScrollHeight : documentScrollHeight;
+　　return scrollHeight;
+}
+ 
+// 浏览器视口的高度
+function _getWindowHeight() {
+　　var windowHeight = 0;
+　　if (document.compatMode == "CSS1Compat") {
+　　　　windowHeight = document.documentElement.clientHeight;
+　　} else {
+　　　　windowHeight = document.body.clientHeight;
+　　}
+　　return windowHeight;
+}
+
 
