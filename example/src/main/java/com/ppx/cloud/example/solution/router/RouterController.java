@@ -27,6 +27,7 @@ public class RouterController {
 	
 	public Map<String, Object> test(MPage page) {
 		
+		
 		List<Test> list = impl.list(page);
 		return MobileReturn.page(page, list);
 	}

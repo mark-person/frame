@@ -33,6 +33,30 @@ axios.interceptors.response.use(function(res) {
 })
 
 var base = {};
+base.showLoading = function() {base.initLoading();_loading.show();}
+base.hideLoading = function() {_loading.hide();}
+
+base.initLoading = function() {
+	if (document.getElementById("_loading")) return;
+	
+	document.body.insertAdjacentHTML("beforeend",'<div id="_loading"><loading v-if="showLoading"></loading></div>')
+	_loading = new Vue({
+		el: '#_loading',
+		components: {'loading': httpVueLoader(baseURL + 'static/common/template/loading.vue?v=2')},
+		data: {showLoading: false, delayLoading: true},
+		methods: {
+	      	show: function() {
+	      		this.delayLoading = true;
+				setTimeout(function() {_loading.showLoading = (_loading.delayLoading ? true : false)}, 400);
+	      	},
+	      	hide: function() {
+	      		this.delayLoading = false;
+	      		setTimeout(function() {_loading.showLoading = (_loading.delayLoading ? true : false)}, 30);
+	      	}
+		}
+	})
+}
+
 
 base.page = {more:false, loading:false, end:false, noData:false, hasMore:true, currentNumber:1};
 

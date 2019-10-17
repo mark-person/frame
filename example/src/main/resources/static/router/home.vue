@@ -32,7 +32,7 @@ module.exports =  {
 	data:function() { return {list:[], page:base.page}},
     methods:{
         view:function() {
-        	test();
+        	view();
         }
     },
     created:function() {

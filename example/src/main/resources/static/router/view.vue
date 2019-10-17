@@ -18,7 +18,7 @@ view001
 
 <script>
 
-window.onscroll = function() {}
+// window.onscroll = function() {}
 
 module.exports =  {
     name: "app",
