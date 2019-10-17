@@ -5,9 +5,9 @@
 
 <div>
 
-new Test()
+my my my
 
-<button @click="xxx()">test...222222</button>
+<button @click="xxx()">test...1</button>
 
 
 
@@ -25,7 +25,9 @@ qqq
 
 <script>
 
-window.onscroll = function(e) {}
+window.onscroll = function(e) {
+	alert(1);
+}
 
 module.exports =  {
     name: "app",
