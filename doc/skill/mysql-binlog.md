@@ -22,6 +22,17 @@ mysqlbinlog --no-defaults “D:\Program Files\MySQL\mysql-8.0.12-winx64\data\bin
 * 
 
 
+# show processlist 
+### show full processlist
+* echo 'show processlist;'|mysql --socket=/tmp/mysql3306.sock > test.dd
+
+
+
+
+
+
+
+
 
 
 
