@@ -34,7 +34,7 @@ mysqladmin -u root -p processlist
 Enter password:
 
 
-
-
+mysqladmin -uroot -pdadong123 processlist       #<==查看执行的SQL语句信息。
+mysqladmin -uroot -pdadong123 processlist -i 1  #<==每秒查看一次执行的SQL语句。
 
 
