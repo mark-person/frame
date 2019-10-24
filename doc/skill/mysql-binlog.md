@@ -28,10 +28,10 @@ mysqlbinlog --no-defaults “D:\Program Files\MySQL\mysql-8.0.12-winx64\data\bin
 
 
 
+您也可以使用mysqladmin processlist语句得到此信息。如果您有SUPER权限，您可以看到所有线程。s
 
-
-
-
+mysqladmin -u root -p processlist
+Enter password:
 
 
 
