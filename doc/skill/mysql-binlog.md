@@ -37,4 +37,18 @@ Enter password:
 mysqladmin -uroot -pdadong123 processlist       #<==查看执行的SQL语句信息。
 mysqladmin -uroot -pdadong123 processlist -i 1  #<==每秒查看一次执行的SQL语句。
 
+processlist
+
+Show a list of active server threads. This is like the output of the SHOW PROCESSLIST statement. If the --verbose option is given, the output is like that of SHOW FULL PROCESSLIST. (See Section 13.7.7.29, “SHOW PROCESSLIST Syntax”.)
+
+--verbose, -v
+
+Verbose mode. Print more information about what the program does.
+
+
+
+
+
+
+
 
