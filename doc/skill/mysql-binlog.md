@@ -51,7 +51,7 @@ SELECT a.trx_id, a.trx_state, a.trx_started, a.trx_query, b.ID, b.USER, b.DB, b.
 
 show full processlist
 
-
+SELECT * FROM INFORMATION_SCHEMA.INNODB_TRX
 
 
 
