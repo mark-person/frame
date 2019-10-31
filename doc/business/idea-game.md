@@ -25,12 +25,20 @@ ticket score
 
 
 
+guess price
 
 
 
+其中A前面的数字表示位置正确的数的个数，而B前的数字表示数字正确而位置不对的数的个数。
+
+跟commodity联系起来
+guest weight
+guest length width
 
 
 
+花score
+2A 2B 生成一个大于X小于Y的随机价
 
 
 
