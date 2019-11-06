@@ -82,9 +82,16 @@ redsea:1.2
 
 用图片转为卡通图
 
+模糊猜图 =》
+
+ImageMagick  模糊图片  先缩小再放大来猜图片
 
 
+convert -resize 50% 1.jpg temp.jpg
 
+-quality参数,质量值为0-100之间的数值,数字越大,质量越好,
+
+convert -resize 30% -quality 10 1.jpg temp.jpg
 
 
 
