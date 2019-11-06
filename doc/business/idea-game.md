@@ -94,7 +94,7 @@ convert -resize 50% 1.jpg temp.jpg
 convert -resize 30% -quality 10 1.jpg temp.jpg
 
 
-
+花金币，局部放大
 
 
 
