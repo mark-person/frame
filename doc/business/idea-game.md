@@ -94,7 +94,7 @@ convert -resize 50% 1.jpg temp.jpg
 convert -resize 30% -quality 10 1.jpg temp.jpg
 
 
-
+花金币，局部放大
 
 convert -crop 1200×700+100+200 inputImg outImg
 说明:1200×700+100+200表示从(100,200)位置开始，裁剪1200×700大小的图片，单位都是像素。
