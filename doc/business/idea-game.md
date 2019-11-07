@@ -107,6 +107,8 @@ convert -size 200x200 xc:none -fill walter.jpg -draw "circle 100,100 100,1" circ
 画圆
 
 
+集卡
+
 
 
 
