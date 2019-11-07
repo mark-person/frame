@@ -96,6 +96,29 @@ convert -resize 30% -quality 10 1.jpg temp.jpg
 
 
 
+convert -crop 1200×700+100+200 inputImg outImg
+说明:1200×700+100+200表示从(100,200)位置开始，裁剪1200×700大小的图片，单位都是像素。
+
+
+
+
+
+convert -size 200x200 xc:none -fill walter.jpg -draw "circle 100,100 100,1" circle_thumb.png
+画圆
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
