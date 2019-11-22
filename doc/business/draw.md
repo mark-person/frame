@@ -2,7 +2,11 @@
 
 https://gojs.net/latest/download.html
 
+
 https://github.com/NorthwoodsSoftware/GoJS/tree/master/samples
+
+
+https://gojs.net/latest/samples/planogram.html
 
 
 gojs 生成Img 并下载
