@@ -1,4 +1,9 @@
 
+去水印解决办法：
+
+1.在文件中搜索7eba17a4ca3b1a8346，找到类似a.Jv=d[w.Jg("7eba17a4ca3b1a8346")][w.Jg("78a118b7")](d,w.um,4,4);这样结构的代码
+2.将其注释，替换成a.Jv=function(){return true;};
+///////////// 是a.kr
 
 https://gojs.net/latest/download.html
 
