@@ -54,3 +54,19 @@ changeColor = function(text) {  // define a function named "changeColor" callabl
   }, "changed shared color");
 }
 
+
+# 放大缩小图片
+diagram.nodeTemplate =
+  $(go.Node, "Auto", {resizable: true}, 
+    $(go.Shape, "RoundedRectangle", 
+      { fill: "white"},  // the default value if there is no modelData.color property
+      new go.Binding("fill", "color").ofModel()),  // meaning a property of Model.modelData
+    $(go.TextBlock,
+      { margin: 5 },
+      new go.Binding("text")),
+     $(go.Picture, 
+       { column: 0, margin: 2, 
+         imageStretch: go.GraphObject.Fill }, new go.Binding("source"), new go.Binding("desiredSize",
+         "", function() {return diagram.findNodeForKey("aaa").desiredSize}).ofObject())
+  );
+
