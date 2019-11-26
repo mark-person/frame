@@ -67,6 +67,6 @@ diagram.nodeTemplate =
      $(go.Picture, 
        { column: 0, margin: 2, 
          imageStretch: go.GraphObject.Fill }, new go.Binding("source"), new go.Binding("desiredSize",
-         "", function() {return diagram.findNodeForKey("aaa").desiredSize}).ofObject())
+         "desiredSize", function() {console.log(1); return diagram.findNodeForKey("aaa").desiredSize}).ofObject())
   );
 
