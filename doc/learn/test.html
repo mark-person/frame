@@ -1,0 +1,67 @@
+<!DOCTYPE html>  <!-- 指定文档类型为 HTML5  -->
+<html>
+<head>
+<!-- 开发时请使用 go-debug.js，最终部署用 go.js -->
+<script src="assets/go-debug.js"></script>
+
+
+</head>
+<body>
+
+<!-- 图形的容器 div 需要明确指定大小，否则无法显示，本例子中我们还给该 DIV 添加了一个背景颜色，可以很方便的查看其大小。 -->
+<div id="myDiagramDiv" style="width:600px; height:350px; background-color: #DAE4E4;"></div>
+
+
+<script>
+
+var $ = go.GraphObject.make;
+var diagram =
+  $(go.Diagram, "myDiagramDiv",
+    {
+      "undoManager.isEnabled": true // enable Ctrl-Z to undo and Ctrl-Y to redo
+    });
+	
+diagram.nodeTemplate =
+  $(go.Node, "Auto", {resizable: true}, 
+    $(go.Shape, "RoundedRectangle", 
+      { fill: "white"},  // the default value if there is no modelData.color property
+      new go.Binding("fill", "color").ofModel()),  // meaning a property of Model.modelData
+    $(go.TextBlock,
+      { margin: 5 },
+      new go.Binding("text")),
+	 $(go.Picture, 
+       { column: 0, margin: 2, 
+         imageStretch: go.GraphObject.Fill }, new go.Binding("source"), new go.Binding("desiredSize",
+		 "desiredSize", function() {console.log(1); return diagram.findNodeForKey("aaa").desiredSize}).ofObject())
+  );
+
+// start all nodes yellow
+diagram.model.modelData.color = "yellow";
+
+diagram.model.nodeDataArray = [
+  {key:"aaa", text: "Alpha", source:"1.png"},
+  { text: "Beta" }
+];
+
+diagram.undoManager.isEnabled = true;
+
+changeColor = function(width) {  // define a function named "changeColor" callable by button.onclick
+  diagram.model.commit(function(m) {
+  
+    // alternate between lightblue and lightgreen colors
+    var oldcolor = m.modelData.color;
+    var newcolor = (oldcolor === "lightblue" ? "lightgreen" : "lightblue");
+    m.set(m.modelData, "color", newcolor);
+	
+	//if (width) m.set(m.nodeDataArray[0], "width", diagram.findNodeForKey("aaa").width);
+  }, "changed shared color");
+}
+
+
+</script>
+
+<button onclick="changeColor(120)">tttt</button>
+
+</body>
+
+</html>
