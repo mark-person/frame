@@ -99,7 +99,84 @@ You can change the size of the grid cell by setting Panel.gridCellSize:
   diagram.grid.gridCellSize = new go.Size(30, 20);
   diagram.toolManager.draggingTool.isGridSnapEnabled = true;
   diagram.toolManager.resizingTool.isGridSnapEnabled = true;
+  
+  
+ // snap to every other point both vertically and horizontally
+ // (the default background grid has a cell size of 10x10)
+  diagram.toolManager.draggingTool.gridSnapCellSize = new go.Size(20, 20);
 ```
+Custom Grids
+
+Grid patterns are implemented by the Panel class when its Panel.type is Panel.Grid. The elements of a Grid Panel must be Shapes whose Shape.figure is one of a small set of known kinds of figures.
+
+```
+diagram.grid =
+    $(go.Panel, go.Panel.Grid,  // or "Grid"
+      { gridCellSize: new go.Size(25, 25) },
+      $(go.Shape, "LineH", { stroke: "blue" }),
+      $(go.Shape, "LineV", { stroke: "green" })
+    );
+```
+
+You can get a green-bar pattern by using the "BarH" figure. Note the use of Shape.fill instead of Shape.stroke and explicitly setting the GraphObject.height:
+
+```
+diagram.grid =
+    $(go.Panel, "Grid",
+      { gridCellSize: new go.Size(50, 50) },
+      $(go.Shape, "BarH", { fill: "lightgreen", interval: 2, height: 50 })
+      );
+
+
+  diagram.nodeTemplate =
+    $(go.Node, "Auto",
+      {
+        dragComputation: function(node, pt, gridpt) {
+          pt.y = Math.round(pt.y/100)*100;
+          return pt;
+        }
+      },
+      $(go.Shape, "Rectangle", { fill: "lightgray" }),
+      $(go.TextBlock, { margin: 5},
+        new go.Binding("text", "key"))
+    );
+  var nodeDataArray = [
+    { key: "Alpha" }
+  ];
+  diagram.model = new go.GraphLinksModel(nodeDataArray);
+```
+
+Here is an example of using a "Grid" Panel as a regular data bound element in a Node:
+
+```
+  diagram.nodeTemplate =
+    $(go.Node, "Auto",
+      { resizable: true, resizeObjectName: "GRID" },
+      $(go.Shape, "Rectangle", { fill: "transparent" }),
+      $(go.Panel, "Grid",
+        { name: "GRID", desiredSize: new go.Size(100, 100), gridCellSize: new go.Size(20, 20) },
+        new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+        new go.Binding("gridCellSize", "cell", go.Size.parse).makeTwoWay(go.Size.stringify),
+        $(go.Shape, "LineV",
+          new go.Binding("stroke")),
+        $(go.Shape, "LineH",
+          new go.Binding("stroke"))
+      ));
+
+  diagram.model = new go.GraphLinksModel([
+    { key: "Alpha", cell: "25 25", stroke: "lightgreen" },
+    { key: "Beta", size: "150 75", cell: "15 30" }
+  ]);
+
+
+```
+
+
+
+
+
+
+
 
 
 
