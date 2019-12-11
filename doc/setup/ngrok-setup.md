@@ -1,7 +1,7 @@
 
 
 # 云服务器启动ngrok
-cd /home/ppx/ngrok/ngrok/
+cd /home/ppx/ngrok/
 nohup ./bin/ngrokd -domain="ppx123.xyz" -httpAddr=":80" -httpsAddr=":443" -tunnelAddr=":8083" > out.txt 2>&1 &
 
 
@@ -129,6 +129,8 @@ tunnels:
          tcp: "192.168.0.107:3389"
 ```
 
+# 注
+* ppx123.xyz 和 test.ppx123.xyz 映射ngrok服务器，然后用http://test.ppx123.xyz访问
 
 
 
