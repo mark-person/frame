@@ -34,7 +34,8 @@ node baidu.js
 运行以下命令安装 Puppeteer：
 
 的详细用法请参照官网：https://www.npmjs.com/package/puppeteer-chromium-resolver。
-
+### Puppeteer 常用命令
+Puppeteer 的官方API文档是 https://pptr.dev/ ，文档里有详细的 Puppeteer 的开放接口，可以进行参考，这里我们只列出一些常用的接口命令。
 
 
 
