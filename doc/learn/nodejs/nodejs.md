@@ -1,6 +1,7 @@
 
 # async await 和promise的使用
-
+async 是“异步”的简写，而 await 可以认为是 async wait 的简写。所以应该很好理解 async
+用于申明一个 function 是异步的，而 await 用于等待一个异步方法执行完成。
 
 
 
