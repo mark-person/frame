@@ -57,7 +57,7 @@ public class GraphQLTest {
 		// String schema = "schema{query: Query} type Query{hello:String \n id:Int}";
 		
 		
-		String schema = "schema{query: Query} type Query {bookById(id: ID): Book} type Book {id: ID \n name: String}";
+		String schema = "schema{query: Query} \n type Query {bookById(id: ID): Book} \n type Book {id: ID \n name: String}";
 		
 
         SchemaParser schemaParser = new SchemaParser();
@@ -70,8 +70,8 @@ public class GraphQLTest {
         
         Builder builder = newRuntimeWiring();
         
-        builder.type("MyPojo", b -> b.dataFetcher("id",  idDataFetcher));
-        builder.type("MyPojo", b -> b.dataFetcher("name",  userDataFetcher));
+        builder.type("Book", b -> b.dataFetcher("id",  idDataFetcher));
+        builder.type("Book", b -> b.dataFetcher("name",  userDataFetcher));
         
         RuntimeWiring runtimeWiring = builder.build();
         
@@ -80,7 +80,7 @@ public class GraphQLTest {
         GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring);
 
         GraphQL build = GraphQL.newGraphQL(graphQLSchema).build();
-        ExecutionResult executionResult = build.execute("{id(id:123), name}");
+        ExecutionResult executionResult = build.execute("{bookById(id:123){id}}");
         
         Map<String, Object> resultMap = executionResult.toSpecification();
         
