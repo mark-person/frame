@@ -26,7 +26,7 @@ import graphql.schema.idl.RuntimeWiring.Builder;
  * @author mark
  * @date 2020年1月15日
  */
-public class GraphQLTest {
+public class GraphQLTest_bak1 {
 	
 	
 	static DataFetcher<String> userDataFetcher = new DataFetcher<String>() {
@@ -57,7 +57,7 @@ public class GraphQLTest {
 		// String schema = "schema{query: Query} type Query{hello:String \n id:Int}";
 		
 		
-		String schema = "schema{query: Query} type Query {bookById(id: ID): Book} type Book {id: ID \n name: String}";
+		String schema = "schema{query: MyPojo \n mutation: MyMutation} type MyPojo{id(id:ID): ID \n name: String} type MyMutation{setSomeField(to: String): String}";
 		
 
         SchemaParser schemaParser = new SchemaParser();
