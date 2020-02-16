@@ -130,8 +130,8 @@ public class DemoController {
 			
 			System.out.println("99999999999999>>>>");
 //			IActivityAppcation aaa = (IActivityAppcation)context.getBean(MyAppcation.class);
-			IActivityAppcation aaa = (IActivityAppcation)context.getBean("myAppcation");
-			aaa.doRun(new ApplicationView());
+			IActivityAppcation app = (IActivityAppcation)context.getBean("myAppcation");
+			app.doRun(new ApplicationView());
 			
 			
 			// myAppcation.doRun(null);
