@@ -34,6 +34,22 @@
             <systemPath>E:\jar\javassist.jar</systemPath>
         </dependency>
         
+        <!--  
+        <dependency>
+            <groupId>procyon</groupId>
+            <artifactId>decompiler</artifactId>
+            <version>0.5.36</version>
+            <scope>system</scope>
+            <systemPath>E:\U\问题\反编译/procyon-decompiler-0.5.36.jar</systemPath>
+        </dependency>
+        
+        -->
+        <dependency>
+		    <groupId>org.bitbucket.mstrobel</groupId>
+		    <artifactId>procyon-compilertools</artifactId>
+		    <version>0.5.36</version>
+		</dependency>
+
         
         
         <dependency>

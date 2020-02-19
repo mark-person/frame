@@ -1,11 +1,15 @@
 package com.ppx.cloud.example.demo;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,13 +20,14 @@ import org.springframework.web.servlet.ModelAndView;
 import com.ppx.cloud.auth.annotation.ActionAuth;
 import com.ppx.cloud.base.jdbc.page.Page;
 import com.ppx.cloud.base.mvc.ControllerReturn;
-import com.ppx.cloud.example.demo.dynamic.ApplicationView;
 import com.ppx.cloud.example.demo.dynamic.IActivityAppcation;
-import com.ppx.cloud.example.demo.dynamic.MyAppcation;
 import com.ppx.cloud.example.demo.dynamic.MyConfigImpl;
-
-import javassist.ClassPool;
-import javassist.CtClass;
+import com.strobel.assembler.metadata.CompositeTypeLoader;
+import com.strobel.assembler.metadata.ITypeLoader;
+import com.strobel.assembler.metadata.JarTypeLoader;
+import com.strobel.decompiler.Decompiler;
+import com.strobel.decompiler.DecompilerSettings;
+import com.strobel.decompiler.PlainTextOutput;
 
 
 @ActionAuth
@@ -42,8 +47,63 @@ public class DemoController {
 //	@Autowired
 //	private MyAppcation myAppcation;
 	
+	public static String unicodeToString(String str) {
+
+	    Pattern compile = Pattern.compile("(\\\\u(\\p{XDigit}{4}))");
+	    Matcher matcher = compile.matcher(str);
+	    char ch;
+	    while (matcher.find()) {
+	        ch = (char) Integer.parseInt(matcher.group(2), 16);
+	        str = str.replace(matcher.group(1), ch+"" );
+	    }
+	    return str;
+
+	}
 	
 	public ModelAndView demo(ModelAndView mv, HttpServletRequest request) {
+		
+		
+		
+		
+		// DecompilerSettings settings = DecompilerSettings.javaDefaults();
+		
+		DecompilerSettings settings = new DecompilerSettings();
+		
+		try {
+			
+			JarFile jarFile = new JarFile("E:\\U\\问题\\反编译\\redseaWorkFlow.jar");
+			ITypeLoader jarLoader = new JarTypeLoader(jarFile);
+		    settings.setTypeLoader((ITypeLoader)new CompositeTypeLoader(new ITypeLoader[] {jarLoader}));
+			
+			//settings.setTypeLoader(jarLoader);
+		    
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
+		try (OutputStreamWriter writer = new OutputStreamWriter(swapStream)) {
+		    Decompiler.decompile("red/sea/workFlow/WorkFlowFactory", new PlainTextOutput(writer), settings);
+		    
+		   
+		    
+		}
+		catch (Exception e) {
+		    e.printStackTrace();
+		}
+		try {
+			byte[] b = swapStream.toByteArray();
+			System.out.println("xxxxxx:" + new String(b));
+		} finally {
+			try {swapStream.close();} catch (IOException e) {} 
+		}
+		
+		 
+		
+		
+		
 		// mv.setViewName("demo/demo/demo");
 		IActivityAppcation appcation = null;
 //		try {
@@ -92,33 +152,35 @@ public class DemoController {
 		// >>>>>>>>>>>>test001
 		try {
 
-			System.out.println(System.getProperty("user.dir"));
-			// 动态编译
-			JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
+//			System.out.println(System.getProperty("user.dir"));
+//			// 动态编译
+//			JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
+//			
+//			
 //			int status = javac.run(null, null, null, "-d", "E:\\Git\\frame\\example\\target\\classes",
 //			        "D:/temp/MyAppcation.java");
-			int status = javac.run(null, null, null, "-d", "E:\\Git\\frame\\example\\target\\classes",
-			        "D:/temp/MyAppcation.java");
-			System.out.println("xxxxxxxxxoutstatusxx:" + status);
-			if (status != 0) {
-				System.out.println("没有编译成功！");
-			}
-			
-			
-			ClassPool pool = ClassPool.getDefault();
-			pool.appendSystemPath();
-			
-			// pool.insertClassPath("E:\\Git\\frame\\example\\target\\classes");
-			CtClass cc = pool.get("com.ppx.cloud.example.demo.dynamic.MyAppcation");
-			
-			
-//			cc.defrost();
-			cc.setName("Testxx998");
-			
-			appcation = (IActivityAppcation)cc.toClass().newInstance();
-			ApplicationView applicationView = new ApplicationView();
-			applicationView.setId("我是一个值");
-			appcation.doRun(applicationView);
+//			System.out.println("xxxxxxxxxoutstatusxx:" + status);
+//			if (status != 0) {
+//				System.out.println("没有编译成功！");
+//			}
+//			
+//			
+//			
+//			
+//			ClassPool pool = ClassPool.getDefault();
+//			pool.appendSystemPath();
+//			
+//			// pool.insertClassPath("E:\\Git\\frame\\example\\target\\classes");
+//			CtClass cc = pool.get("red.sea.index.controller.MyTestAppcation");
+//			
+//			
+////			cc.defrost();
+//			cc.setName("Testxx998");
+//			
+//			appcation = (IActivityAppcation)cc.toClass().newInstance();
+//			ApplicationView applicationView = new ApplicationView();
+//			applicationView.setId("我是一个值");
+//			appcation.doRun(applicationView);
 			
 			
 //			Class clz = Class.forName("com.ppx.cloud.example.demo.MyAppcation8", true, this.getClass().getClassLoader());// 返回与带有给定字符串名的类 或接口相关联的 Class 对象。
@@ -126,15 +188,22 @@ public class DemoController {
 //			a.doRun(null);
 			
 			
-			myConfigImpl.postProcessBeforeInitialization(appcation, "myAppcationx");
-			
-			System.out.println("99999999999999>>>>");
-//			IActivityAppcation aaa = (IActivityAppcation)context.getBean(MyAppcation.class);
-			IActivityAppcation app = (IActivityAppcation)context.getBean("myAppcation");
-			app.doRun(new ApplicationView());
 			
 			
-			// myAppcation.doRun(null);
+//			myConfigImpl.postProcessBeforeInitialization(appcation, "myAppcationx");
+//			
+//			System.out.println("99999999999999>>>>");
+////			IActivityAppcation aaa = (IActivityAppcation)context.getBean(MyAppcation.class);
+//			IActivityAppcation app = (IActivityAppcation)context.getBean("myAppcation");
+//			app.doRun(new ApplicationView());
+//			
+//			Class clz = null;
+//			Field[] field = clz.getDeclaredFields();
+//			for (Field field2 : field) {
+//				field2.setAccessible(true);
+//			}
+//			
+//			// myAppcation.doRun(null);
 			
 			
 			
@@ -182,6 +251,16 @@ public class DemoController {
 		return mv;
 	}
 	
+	/**
+	 * @param string
+	 * @param object
+	 * @return
+	 */
+	private Object tryLoadType(String string, Object object) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public Map<String, Object> list(Page page, Demo pojo) {
 		
 		
